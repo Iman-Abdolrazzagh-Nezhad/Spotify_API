@@ -1,0 +1,17 @@
+w0:
+-planing
+-initializing git on directory
+-booting up server.js
+
+w1:
+-basic data modeling for "User" and "Music"
+-CRUD operations for "Music"
+
+w2:
+-auth for User
+-CRUD operations for "User"
+
+w3:
+-enable password reset via mailtrap
+-use query params and enable sorting, limiting, ...
+
