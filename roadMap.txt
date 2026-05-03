@@ -4,12 +4,15 @@ w0:
 -booting up server.js
 
 w1:
--basic data modeling for "User" and "Music"
--CRUD operations for "Music"
+-basic data modeling for "User"
+-auth for User
+-CRUD operations for "User" 
+
 
 w2:
--auth for User
--CRUD operations for "User"
+-basic data modeling for "User"
+-CRUD operations for "Music"
+
 
 w3:
 -enable password reset via mailtrap

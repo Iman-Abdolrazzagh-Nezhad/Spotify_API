@@ -1,0 +1,27 @@
+{
+  "name": "spotify",
+  "version": "1.0.0",
+  "description": "API for spotify",
+  "main": "Server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "on:dev": "NODE_ENV=development nodemon sever.js",
+    "on:prod": "NODE_ENV=production nodemon sever.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Iman-Abdolrazzagh-Nezhad/Spotify_API.git"
+  },
+  "author": "Iman.Abdolrazzagh.Nezhad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Iman-Abdolrazzagh-Nezhad/Spotify_API/issues"
+  },
+  "homepage": "https://github.com/Iman-Abdolrazzagh-Nezhad/Spotify_API#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "morgan": "^1.10.1",
+    "nodemon": "^3.1.14"
+  }
+}
