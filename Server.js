@@ -1,23 +1,9 @@
-const express = require("express");
-const morgan = require("morgan");
 const dotenv = require("dotenv");
 
-const usersRouter = require("./Routers/UserRouter");
+const app = require("./app");
 
 //set path for environment variables
 dotenv.config({ path: "./config.env", quiet: true });
-
-const app = express();
-
-//global middlewares
-app.use(express.json());
-
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-}
-
-//ROUTERS
-app.use("/api/v1/user", usersRouter);
 
 //booting up the server
 const port = process.env.PORT || 3000;
