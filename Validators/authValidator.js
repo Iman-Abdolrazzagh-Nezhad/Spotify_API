@@ -5,10 +5,16 @@ const isProvided = require("../Utilities/isProvided");
 
 async function validateSignup(req, res) {
   // Check for missing fields
+
   try {
-    await isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
+    isProvided(req, [
+      "email",
+      "password",
+      "passwordConfirmation",
+      "name",
+    ]);
   } catch (err) {
-    throw err;
+    throw err
   }
 
   // Check for min length of the password
@@ -26,11 +32,7 @@ async function validateSignup(req, res) {
     throw new AppError("Email is not valid.", 400);
   }
 
-  try {
-    await authController.signup(req, res);
-  } catch (err) {
-    throw err;
-  }
+  await authController.signup(req, res);
 }
 
 async function validateLogin(req, res) {
@@ -46,16 +48,11 @@ async function validateLogin(req, res) {
     throw new AppError("Password is less than 4 letters.", 400);
   }
 
-  try {
-    await authController.login(req, res);
-  } catch (err) {
-    throw err;
-  }
+  await authController.login(req, res);
 }
 
 async function identifyUser(req) {
   var token;
-
 
   if (
     req.headers.authorization &&
@@ -70,29 +67,32 @@ async function identifyUser(req) {
     throw new AppError("You are not logged in.", 401);
   }
 
+
+  await authController.identifyUser(req, token);
+}
+
+async function validateMe(req, res) {
   try {
-    await authController.identifyUser(req, token);
+    await identifyUser(req);
+    await authController.getMe(req, res);
   } catch (err) {
     throw err;
   }
 }
 
-async function validateMe(req, res) {
-    try {
-        await identifyUser(req);
-        await authController.getMe(req, res);
-    } catch (err) {
-        throw err;
-    }
-}
-
 async function validateLogout(req, res) {
-    try{
-        await identifyUser(req);
-        await authController.logout(req, res);
-    } catch(err) {
-        throw err;
-    }
+  try {
+    await identifyUser(req);
+    await authController.logout(req, res);
+  } catch (err) {
+    throw err;
+  }
 }
 
-module.exports = { validateSignup, validateLogin, validateMe, validateLogout, identifyUser};
+module.exports = {
+  validateSignup,
+  validateLogin,
+  validateMe,
+  validateLogout,
+  identifyUser,
+};

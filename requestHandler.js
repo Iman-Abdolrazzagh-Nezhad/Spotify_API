@@ -20,7 +20,7 @@ const queryParams = {
 // Add your request body (ignored for GET requests)
 const body = {
   email: "mona@gmail.com",
-  name: "mona",
+  name: "iman",
   password: "iman00084",
   // passwordConfirmation: "iman00084",
   // role: "admin",

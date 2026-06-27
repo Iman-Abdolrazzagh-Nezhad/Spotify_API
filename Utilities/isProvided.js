@@ -4,8 +4,7 @@ function isProvided(req, requiredFields) {
   const missingField = requiredFields.find((field) => !req.body[field]);
 
   if (missingField) {
-    const error = new AppError(`${missingField} missing!`, 400);
-    throw error;
+    throw new AppError(`${missingField} missing!`, 400);
   }
 }
 

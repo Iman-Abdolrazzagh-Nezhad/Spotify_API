@@ -4,13 +4,8 @@ const bcrypt = require("bcryptjs");
 async function createUser(userObject) {
   userObject.createdAt = Date.now();
 
-  let user;
-  try {
-    userObject.password = await bcrypt.hash(userObject.password, 12);
-    user = await User.insertOne(userObject);
-  } catch (err) {
-    throw err;
-  }
+  userObject.password = await bcrypt.hash(userObject.password, 12);
+  const user = await User.insertOne(userObject);
 
   return user;
 }
@@ -21,37 +16,32 @@ async function getUser(userObject, returnPassword = false) {
   if (userObject.email) query.email = userObject.email;
   if (userObject.id) query._id = userObject.id;
 
-  let user;
-
-  try {
-    if (returnPassword) {
-      // For login we need the password to be selected
-      return await User.findOne(query).select("+password");
-    } else {
-      return await User.findOne(query);
-    }
-  } catch (err) {
-    throw err;
+  if (returnPassword) {
+    // For login we need the password to be selected
+    return await User.findOne(query).select("+password");
+  } else {
+    return await User.findOne(query);
   }
+
 }
 
-async function getAllUser () {
-    try {
-        return await User.find();
-    } catch (err) {
-        throw err;
-    }
+async function getAllUser() {
+  return await User.find();
 }
 
 async function updateUser(id, userUpdate) {
-  try {
-    return await User.findByIdAndUpdate(id, userUpdate, {
-      runValidators: true,
-      new: true,
-    });
-  } catch (err) {
-    throw err;
-  }
+  userUpdate.updatedAt = Date.now()
+
+  const data = await User.findByIdAndUpdate(id, userUpdate, {
+    runValidators: true,
+    new: true,
+  });
+
+  return data;
 }
 
-module.exports = { createUser, getUser, updateUser, getAllUser };
+async function deleteUser(id) {
+  await User.findByIdAndDelete(id);
+}
+
+module.exports = { createUser, getUser, updateUser, getAllUser, deleteUser };

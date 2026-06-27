@@ -1,15 +1,10 @@
-const User = require("../Models/UsersModel");
 const usersDomain = require("../Domains/UsersDomain");
 const AppError = require("../Utilities/appError");
-const catchAsync = require("../Utilities/catchAsync");
 
-async function getAllUsers (req, res) {
+
+async function getAllUsers(req, res) {
   let data;
-  try {
-    data = await usersDomain.getAllUser();
-  } catch (err) {
-    throw err;
-  }
+  data = await usersDomain.getAllUser();
 
   if (!data) {
     throw new AppError("Failed to find users.", 404);
@@ -21,14 +16,14 @@ async function getAllUsers (req, res) {
     numOfResults: data.length,
     data,
   });
-};
+}
 
-async function getUser (req, res) {
+async function getUser(req, res) {
   //query for user
-  const data = await User.findById(req.params.id);
+  const data = await usersDomain.getUser(req.params.id);
 
   if (!data) {
-    return next(new AppError("User with given id not found.", 404));
+    throw new AppError("User not found.", 404);
   }
 
   //send response
@@ -36,9 +31,9 @@ async function getUser (req, res) {
     status: "success",
     data,
   });
-};
+}
 
-async function addUser (req, res) {
+async function addUser(req, res) {
   //creating new user object
   const newUser = {
     name: req.body.name,
@@ -48,15 +43,11 @@ async function addUser (req, res) {
   };
 
   //creating new user in db
-  let data;
-  try {
-    data = await usersDomain.createUser(newUser);
-  } catch (err) {
-    throw err;
-  }
+  const data = await usersDomain.createUser(newUser);
+
 
   if (!data) {
-    return next(new AppError("Failed to create the user.", 500));
+    throw new AppError("Failed to create the user.", 500);
   }
 
   //send response
@@ -64,23 +55,17 @@ async function addUser (req, res) {
     status: "success",
     data,
   });
-};
+}
 
-async function updateUser (req, res) {
+async function updateUser(req, res) {
   //monitor update
   const update = req.body;
 
-  delete update.password;
-  update.updatedAt = Date.now();
-
   //update user
-  const data = await User.findByIdAndUpdate(req.params.id, update, {
-    new: true,
-    runValidators: true,
-  });
+  const data = await usersDomain.updateUser(req.params.id, update);
 
   if (!data) {
-    return next(new AppError("User with given id not found.", 404));
+    throw new AppError("User with given id not found.", 404);
   }
 
   //send response
@@ -88,18 +73,14 @@ async function updateUser (req, res) {
     status: "success",
     data,
   });
-};
+}
 
-async function deleteUser (req, res) {
-  const done = await User.findByIdAndDelete(req.params.id);
-
-  if (!done) {
-    return next(new AppError("User with given id not found.", 404));
-  }
+async function deleteUser(req, res) {
+  await usersDomain.deleteUser(req.params.id);
 
   res.status(204).json({
     status: "success",
   });
-};
+}
 
-module.exports = { getAllUsers, addUser, getUser, updateUser, deleteUser }
+module.exports = { getAllUsers, addUser, getUser, updateUser, deleteUser };
