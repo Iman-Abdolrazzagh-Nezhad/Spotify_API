@@ -22,3 +22,5 @@ async function deleteUser(id) {
 }
 
 module.exports = { getAllUser, createUser, getUser, updateUser, deleteUser };
+
+
