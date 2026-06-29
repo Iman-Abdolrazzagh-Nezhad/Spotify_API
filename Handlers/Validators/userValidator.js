@@ -1,11 +1,11 @@
-const userController = require("../Controllers/userController");
-const authValidator = require("../Validators/authValidator");
+const userController = require("../../Controllers/userController");
+const authValidator = require("./authValidator");
 
-const AppError = require("../Utilities/appError");
+const AppError = require("../../Utilities/appError");
 const validator = require("validator");
-const restrictTo = require("../Utilities/restrictTo");
-const isProvided = require("../Utilities/isProvided");
-const idValidator = require("../Utilities/idValidator");
+const restrictTo = require("../../Utilities/restrictTo");
+const isProvided = require("../../Utilities/isProvided");
+const idValidator = require("../../Utilities/idValidator");
 
 async function getAllValidator(req, res) {
   await authValidator.identifyUser(req);
