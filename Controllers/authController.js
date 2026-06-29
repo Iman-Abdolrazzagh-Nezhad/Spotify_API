@@ -36,15 +36,11 @@ async function login(req, res) {
     password: req.body.password,
   };
 
-  let user;
-  try {
-    user = await UsersDomain.getUser(
-      { email: userObject.email },
-      { returnPassword: true }
-    );
-  } catch (err) {
-    throw err;
-  }
+
+  const user = await UsersDomain.getUser(
+    { email: userObject.email },
+    { returnPassword: true }
+  );
 
   if (!user) {
     throw new AppError("Email or password is wrong.", 403); //Email is wrong
@@ -58,16 +54,11 @@ async function login(req, res) {
   }
   // Make jwt and send
   const token = createJWT(user.id);
-
   sendResponse(token, 200, res);
 
   //update last login when all process went smoothly
+  await UsersDomain.updateUser(user.id, { lastLoginAt: Date.now() });
 
-  try {
-    await UsersDomain.updateUser(user.id, { lastLoginAt: Date.now() });
-  } catch (err) {
-    throw err;
-  }
 }
 
 async function signup(req, res) {
@@ -78,13 +69,7 @@ async function signup(req, res) {
     password: req.body.password,
   };
 
-  let user;
-  //creating new user
-  try {
-    user = await UsersDomain.createUser(newUser);
-  } catch (err) {
-    throw err;
-  }
+  const user = await UsersDomain.createUser(newUser);
 
   //make jwt and send
   const token = createJWT(user.id);
@@ -93,14 +78,8 @@ async function signup(req, res) {
 }
 
 async function identifyUser(req, token) {
-
-  let user;
-  try {
-    const tokenUser = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-    user = await UsersDomain.getUser({ id: tokenUser.id });
-  } catch (err) {
-    throw err;
-  }
+  const tokenUser = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const user = await UsersDomain.getUser({ id: tokenUser.id });
 
   if (!user) {
     throw new AppError("User does not exist anymore.", 404);
@@ -108,8 +87,6 @@ async function identifyUser(req, token) {
 
   req.locals = {};
   req.locals.user = user;
-
-  return;
 }
 
 function getMe (req, res) {

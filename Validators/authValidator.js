@@ -72,21 +72,14 @@ async function identifyUser(req) {
 }
 
 async function validateMe(req, res) {
-  try {
-    await identifyUser(req);
-    await authController.getMe(req, res);
-  } catch (err) {
-    throw err;
-  }
+
+  await identifyUser(req);
+  await authController.getMe(req, res);
 }
 
 async function validateLogout(req, res) {
-  try {
     await identifyUser(req);
     await authController.logout(req, res);
-  } catch (err) {
-    throw err;
-  }
 }
 
 module.exports = {

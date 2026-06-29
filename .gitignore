@@ -1,1 +1,5 @@
-.env
+*.env
+*.dia
+roadMap.txt
+.idea
+requestHandler.js
