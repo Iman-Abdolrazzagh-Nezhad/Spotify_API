@@ -10,11 +10,11 @@ async function createUser(userObject) {
   return user;
 }
 
-async function getUser(userObject, returnPassword = false) {
+async function getUser(queryObject, returnPassword = false) {
   const query = {};
 
-  if (userObject.email) query.email = userObject.email;
-  if (userObject.id) query._id = userObject.id;
+  if (queryObject.email) query.email = queryObject.email;
+  if (queryObject.id) query._id = queryObject.id;
 
   if (returnPassword) {
     // For login we need the password to be selected

@@ -2,62 +2,49 @@ const usersDomain = require("../Domains/UsersDomain");
 const AppError = require("../Utilities/appError");
 
 
-async function getAllUsers(req, res) {
-  let data;
-  data = await usersDomain.getAllUser();
+async function getAllUsers() {
+  const data = await usersDomain.getAllUser();
 
   if (!data) {
     throw new AppError("Failed to find users.", 404);
   }
 
-  //send response
-  res.status(200).json({
-    status: "success",
-    numOfResults: data.length,
-    data,
-  });
+  return data;
 }
 
-async function getUser(req, res) {
+async function getUser(req) {
+  const queryObject = {
+    id : req.params.id
+  }
   //query for user
-  const data = await usersDomain.getUser(req.params.id);
+  const data = await usersDomain.getUser(queryObject);
 
   if (!data) {
     throw new AppError("User not found.", 404);
   }
 
-  //send response
-  res.status(200).json({
-    status: "success",
-    data,
-  });
+  return data;
 }
 
-async function addUser(req, res) {
+async function addUser(body) {
   //creating new user object
   const newUser = {
-    name: req.body.name,
-    password: req.body.password,
-    email: req.body.email,
-    createdAt: Date.now(),
+    name: body.name,
+    password: body.password,
+    email: body.email,
   };
 
   //creating new user in db
   const data = await usersDomain.createUser(newUser);
 
-
   if (!data) {
     throw new AppError("Failed to create the user.", 500);
   }
 
-  //send response
-  res.status(201).json({
-    status: "success",
-    data,
-  });
+  return data;
 }
 
-async function updateUser(req, res) {
+async function updateUser(req) {
   //monitor update
   const update = req.body;
 
@@ -68,19 +55,11 @@ async function updateUser(req, res) {
     throw new AppError("User with given id not found.", 404);
   }
 
-  //send response
-  res.status(200).json({
-    status: "success",
-    data,
-  });
+  return data;
 }
 
-async function deleteUser(req, res) {
+async function deleteUser(req) {
   await usersDomain.deleteUser(req.params.id);
-
-  res.status(204).json({
-    status: "success",
-  });
 }
 
 module.exports = { getAllUsers, addUser, getUser, updateUser, deleteUser };
