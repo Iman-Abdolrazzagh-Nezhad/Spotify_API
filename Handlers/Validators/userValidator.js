@@ -1,5 +1,3 @@
-const authValidator = require("./authValidator");
-
 const AppError = require("../../Utilities/appError");
 const validator = require("validator");
 const restrictTo = require("../../Utilities/restrictTo");

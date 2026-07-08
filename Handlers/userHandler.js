@@ -2,9 +2,6 @@ const userValidator = require("../Handlers/Validators/userValidator");
 const userController = require("../Controllers/userController");
 const authController = require("../Controllers/authController");
 const authValidator = require("../Handlers/Validators/authValidator");
-const AppError = require("../Utilities/appError");
-const restrictTo = require("../Utilities/restrictTo");
-const idValidator = require("../Utilities/idValidator");
 
 async function getAllUserHandler(req, res) {
   const token = await authValidator.validateUserToken(req);

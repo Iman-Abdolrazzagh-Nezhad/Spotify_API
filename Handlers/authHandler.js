@@ -1,6 +1,5 @@
 const authValidator = require("../Handlers/Validators/authValidator");
 const authController = require("../Controllers/authController");
-const userController = require("../Controllers/userController");
 
 const sendResponse = (jwt, statusCode, res) => {
   const cookieOptions = {

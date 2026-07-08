@@ -1,5 +1,4 @@
 const userRepo = require("../Repositories/UsersRepo");
-const AppError = require("../Utilities/appError");
 
 async function getAllUser() {
   return await userRepo.getAllUser();

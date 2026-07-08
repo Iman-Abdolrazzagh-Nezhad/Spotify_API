@@ -1,7 +1,5 @@
-const User = require("../Models/UsersModel");
 const AppError = require("../Utilities/appError");
 const { promisify } = require("util");
-const catchAsync = require("../Utilities/catchAsync");
 const jwt = require("jsonwebtoken");
 const UsersDomain = require("../Domains/UsersDomain");
 const bcrypt = require("bcryptjs");
@@ -12,21 +10,6 @@ const createJWT = (id) => {
   });
 
   return token;
-};
-
-const sendResponse = (jwt, statusCode, res) => {
-  const cookieOptions = {
-    expiresIn: new Date(
-      Date.now() + process.env.JWT_EXP_DATE * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-  };
-  res.cookie("jwt", jwt, cookieOptions);
-
-  res.status(statusCode).json({
-    status: "success",
-    jwt,
-  });
 };
 
 async function login(req) {
@@ -63,7 +46,7 @@ async function login(req) {
 }
 
 async function signup(req) {
-  //validating new user data
+  //creating new user object
   const newUser = {
     name: req.body.name,
     email: req.body.email,

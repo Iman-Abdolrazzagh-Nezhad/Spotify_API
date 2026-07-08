@@ -1,4 +1,3 @@
-const authController = require("../../Controllers/authController");
 const validator = require("validator");
 const AppError = require("../../Utilities/appError");
 const isProvided = require("../../Utilities/isProvided");
@@ -14,7 +13,6 @@ async function validateLogin(req) {
 
 async function validateSignup(req, res) {
   // Check for missing fields
-
   try {
     isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
   } catch (err) {
