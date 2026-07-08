@@ -1,70 +1,87 @@
 const userValidator = require("../Handlers/Validators/userValidator");
-const userController = require("../Controllers/userController")
+const userController = require("../Controllers/userController");
+const authController = require("../Controllers/authController");
+const authValidator = require("../Handlers/Validators/authValidator");
 const AppError = require("../Utilities/appError");
 const restrictTo = require("../Utilities/restrictTo");
+const idValidator = require("../Utilities/idValidator");
 
+async function getAllUserHandler(req, res) {
+  const token = await authValidator.validateUserToken(req);
+  await authController.identifyUser(req, token);
 
-async function getAllUserHandler (req, res) {
-    let data;
-    await userValidator.getAllUserValidator(req)
+  await userValidator.getAllUserValidator(req);
 
-    if (await restrictTo(req.locals.user.role, "admin")) {
-        data = await userController.getAllUsers(req, res);
-    } else {
-        throw new AppError("You are not authorized to access this section.", 403);
-    }
+  const data = await userController.getAllUsers(req);
 
-    //send response
-    res.status(200).json({
-        status: "success",
-        numOfResults: data.length,
-        data,
-    });
+  //send response
+  res.status(200).json({
+    status: "success",
+    numOfResults: data.length,
+    data,
+  });
 }
 
-async function getUserHandler (req, res) {
-    await userValidator.getUserValidator(req);
+async function getUserHandler(req, res) {
+  const token = await authValidator.validateUserToken(req);
+  await authController.identifyUser(req, token);
 
-    const data = await userController.getUser(req);
+  const data = await userController.getUser(req);
 
-    //send response
-    res.status(200).json({
-        status: "success",
-        data,
-    });
+  //send response
+  res.status(200).json({
+    status: "success",
+    data,
+  });
 }
 
-async function addUserHandler (req, res) {
-    await userValidator.addUserValidator(req);
+async function addUserHandler(req, res) {
+  const token = await authValidator.validateUserToken(req);
+  await authController.identifyUser(req, token);
 
-    const data = await userController.addUser(req.body);
+  await userValidator.addUserValidator(req);
 
-    //send response
-    res.status(201).json({
-        status: "success",
-        data,
-    });
+  const data = await userController.addUser(req.body);
+
+  //send response
+  res.status(201).json({
+    status: "success",
+    data,
+  });
 }
 
-async function updateUserHandler (req, res) {
-    await userValidator.updateUser(req);
-    const data = await userController.updateUser(req);
+async function updateUserHandler(req, res) {
+  const token = await authValidator.validateUserToken(req);
+  await authController.identifyUser(req, token);
 
-    //send response
-    res.status(200).json({
-        status: "success",
-        data,
-    });
+  await userValidator.updateUser(req);
+
+  const data = await userController.updateUser(req);
+
+  //send response
+  res.status(200).json({
+    status: "success",
+    data,
+  });
 }
 
-async function deleteUserHandler (req, res) {
-    await userValidator.deleteUser(req);
+async function deleteUserHandler(req, res) {
+  const token = await authValidator.validateUserToken(req);
+  await authController.identifyUser(req, token);
 
-    await userController.deleteUser(req);
+  await userValidator.deleteUser(req);
 
-    res.status(204).json({
-        status: "success",
-    });
+  await userController.deleteUser(req);
+
+  res.status(204).json({
+    status: "success",
+  });
 }
 
-module.exports = { getAllUserHandler, getUserHandler, addUserHandler, updateUserHandler, deleteUserHandler }
+module.exports = {
+  getAllUserHandler,
+  getUserHandler,
+  addUserHandler,
+  updateUserHandler,
+  deleteUserHandler,
+};

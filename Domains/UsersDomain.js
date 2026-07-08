@@ -6,21 +6,19 @@ async function getAllUser() {
 }
 
 async function createUser(userObject) {
-    return userRepo.createUser(userObject);
+  return userRepo.createUser(userObject);
 }
 
 async function getUser(queryObject, options = {}) {
-    return userRepo.getUser(queryObject, options.returnPassword);
+  return userRepo.getUser(queryObject, options.returnPassword);
 }
 
-async function updateUser(id, userUpdate) {
-    return userRepo.updateUser(id, userUpdate);
+async function updateUser(id, userUpdate, options = {}) {
+  return userRepo.updateUser(id, userUpdate, options.login);
 }
 
 async function deleteUser(id) {
-    return userRepo.deleteUser(id);
+  return userRepo.deleteUser(id);
 }
 
 module.exports = { getAllUser, createUser, getUser, updateUser, deleteUser };
-
-

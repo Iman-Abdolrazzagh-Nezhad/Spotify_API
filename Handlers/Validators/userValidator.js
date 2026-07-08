@@ -7,21 +7,16 @@ const isProvided = require("../../Utilities/isProvided");
 const idValidator = require("../../Utilities/idValidator");
 
 async function getAllUserValidator(req) {
-  await authValidator.identifyUser(req);
+  if (!(await restrictTo(req.locals.user.role, "admin"))) {
+    throw new AppError("You are not authorized to access this section.", 403);
+  }
 }
 
 async function addUserValidator(req) {
-  await authValidator.identifyUser(req);
-
   //Send for controller if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
     // Check for missing fields
-    isProvided(req, [
-      "email",
-      "password",
-      "passwordConfirmation",
-      "name",
-    ]);
+    isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
     // Check for min length of the password
     if (4 > req.body.password.length) {
       throw new AppError("Password is less than 4 letters.", 400);
@@ -42,20 +37,15 @@ async function addUserValidator(req) {
 }
 
 async function getUserValidator(req) {
-  await authValidator.identifyUser(req);
-
-  //Send for controller if authorized and verified
+  //Send for handler if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
     idValidator(req.params.id);
-
   } else {
     throw new AppError("You are not authorized to access this section.", 403);
   }
 }
 
 async function updateUser(req) {
-  await authValidator.identifyUser(req);
-
   //Send for controller if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
     idValidator(req.params.id);
@@ -64,24 +54,30 @@ async function updateUser(req) {
 
     for (const field of prohibited) {
       if (field in req.body) {
-        throw new AppError(`${field} is not changeable through this route.`, 400);
+        throw new AppError(
+          `${field} is not changeable through this route.`,
+          400
+        );
       }
     }
-
   } else {
     throw new AppError("You are not authorized to access this section.", 403);
   }
 }
 
 async function deleteUser(req) {
-    await authValidator.identifyUser(req);
-
-    //Send for controller if authorized and verified
-    if (await restrictTo(req.locals.user.role, "admin")) {
-      idValidator(req.params.id);
-    } else {
-      throw new AppError("You are not authorized to access this section.", 403);
-    }
+  //Send for controller if authorized and verified
+  if (await restrictTo(req.locals.user.role, "admin")) {
+    idValidator(req.params.id);
+  } else {
+    throw new AppError("You are not authorized to access this section.", 403);
+  }
 }
 
-module.exports = { getAllUserValidator, addUserValidator, getUserValidator, updateUser, deleteUser };
+module.exports = {
+  getAllUserValidator,
+  addUserValidator,
+  getUserValidator,
+  updateUser,
+  deleteUser,
+};

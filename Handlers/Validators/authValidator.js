@@ -3,18 +3,22 @@ const validator = require("validator");
 const AppError = require("../../Utilities/appError");
 const isProvided = require("../../Utilities/isProvided");
 
+async function validateLogin(req) {
+  await isProvided(req, ["email", "password"]);
+
+  // Check for password min length
+  if (4 > req.body.password.length) {
+    throw new AppError("Password is less than 4 letters.", 400);
+  }
+}
+
 async function validateSignup(req, res) {
   // Check for missing fields
 
   try {
-    isProvided(req, [
-      "email",
-      "password",
-      "passwordConfirmation",
-      "name",
-    ]);
+    isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
   } catch (err) {
-    throw err
+    throw err;
   }
 
   // Check for min length of the password
@@ -31,27 +35,9 @@ async function validateSignup(req, res) {
   if (!validator.isEmail(req.body.email)) {
     throw new AppError("Email is not valid.", 400);
   }
-
-  await authController.signup(req, res);
 }
 
-async function validateLogin(req, res) {
-  // Check for missing fields
-  try {
-    await isProvided(req, ["email", "password"]);
-  } catch (err) {
-    throw err;
-  }
-
-  // Check for password min length
-  if (4 > req.body.password.length) {
-    throw new AppError("Password is less than 4 letters.", 400);
-  }
-
-  await authController.login(req, res);
-}
-
-async function identifyUser(req) {
+async function validateUserToken(req) {
   var token;
 
   if (
@@ -67,25 +53,11 @@ async function identifyUser(req) {
     throw new AppError("You are not logged in.", 401);
   }
 
-
-  await authController.identifyUser(req, token);
-}
-
-async function validateMe(req, res) {
-
-  await identifyUser(req);
-  await authController.getMe(req, res);
-}
-
-async function validateLogout(req, res) {
-    await identifyUser(req);
-    await authController.logout(req, res);
+  return token;
 }
 
 module.exports = {
   validateSignup,
   validateLogin,
-  validateMe,
-  validateLogout,
-  identifyUser,
+  validateUserToken,
 };

@@ -29,13 +29,12 @@ const sendResponse = (jwt, statusCode, res) => {
   });
 };
 
-async function login(req, res) {
+async function login(req) {
   // Find and validate user
   const userObject = {
     email: req.body.email,
     password: req.body.password,
   };
-
 
   const user = await UsersDomain.getUser(
     { email: userObject.email },
@@ -45,23 +44,25 @@ async function login(req, res) {
   if (!user) {
     throw new AppError("Email or password is wrong.", 403); //Email is wrong
   }
+
   // Check if password is correct
-
   const match = await bcrypt.compare(userObject.password, user.password);
-
   if (!match) {
     throw new AppError("Email or password is wrong.", 403); //Password is wrong
   }
   // Make jwt and send
   const token = createJWT(user.id);
-  sendResponse(token, 200, res);
 
-  //update last login when all process went smoothly
-  await UsersDomain.updateUser(user.id, { lastLoginAt: Date.now() });
+  await UsersDomain.updateUser(
+    user.id,
+    { lastLoginAt: Date.now() },
+    { login: true }
+  ); // login : true tells repo to not achange the updatedAt field for this data
 
+  return token;
 }
 
-async function signup(req, res) {
+async function signup(req) {
   //validating new user data
   const newUser = {
     name: req.body.name,
@@ -74,7 +75,7 @@ async function signup(req, res) {
   //make jwt and send
   const token = createJWT(user.id);
 
-  sendResponse(token, 201, res);
+  return token;
 }
 
 async function identifyUser(req, token) {
@@ -89,26 +90,13 @@ async function identifyUser(req, token) {
   req.locals.user = user;
 }
 
-function getMe (req, res) {
-  const data = req.locals.user;
-
-  res.status(200).json({
-    status: "success",
-    data,
-  });
-};
-
-function logout (req, res) {
+async function logout() {
   const cookieOptions = {
     expires: new Date(Date.now() + 1),
     httpOnly: true,
   };
 
-  res.cookie("jwt", "GoBackToYourOwnLamPesht", cookieOptions);
+  return cookieOptions;
+}
 
-  res.status(200).json({
-    status: "success",
-  });
-};
-
-module.exports = { login, signup, getMe, logout, identifyUser };
+module.exports = { login, signup, logout, identifyUser };

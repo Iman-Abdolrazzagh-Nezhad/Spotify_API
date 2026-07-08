@@ -1,7 +1,6 @@
 const usersDomain = require("../Domains/UsersDomain");
 const AppError = require("../Utilities/appError");
 
-
 async function getAllUsers() {
   const data = await usersDomain.getAllUser();
 
@@ -14,8 +13,8 @@ async function getAllUsers() {
 
 async function getUser(req) {
   const queryObject = {
-    id : req.params.id
-  }
+    id: req.params.id,
+  };
   //query for user
   const data = await usersDomain.getUser(queryObject);
 
@@ -44,12 +43,13 @@ async function addUser(body) {
   return data;
 }
 
-async function updateUser(req) {
+async function updateUser(req, userId = undefined) {
   //monitor update
   const update = req.body;
+  const id = userId || req.params.id;
 
   //update user
-  const data = await usersDomain.updateUser(req.params.id, update);
+  const data = await usersDomain.updateUser(id, update);
 
   if (!data) {
     throw new AppError("User with given id not found.", 404);
