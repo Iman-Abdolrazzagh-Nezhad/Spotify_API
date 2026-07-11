@@ -8,8 +8,8 @@ async function createUser(userObject) {
   return userRepo.createUser(userObject);
 }
 
-async function getUser(queryObject, options = {}) {
-  return userRepo.getUser(queryObject, options.returnPassword);
+async function getUser(userObject, options = {}) {
+  return userRepo.getUser(userObject, options.returnPassword);
 }
 
 async function updateUser(id, userUpdate, options = {}) {

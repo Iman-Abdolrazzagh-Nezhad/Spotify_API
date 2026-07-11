@@ -4,12 +4,6 @@ const restrictTo = require("../../Utilities/restrictTo");
 const isProvided = require("../../Utilities/isProvided");
 const idValidator = require("../../Utilities/idValidator");
 
-async function getAllUserValidator(req) {
-  if (!(await restrictTo(req.locals.user.role, "admin"))) {
-    throw new AppError("You are not authorized to access this section.", 403);
-  }
-}
-
 async function addUserValidator(req) {
   //Send for controller if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
@@ -73,7 +67,6 @@ async function deleteUser(req) {
 }
 
 module.exports = {
-  getAllUserValidator,
   addUserValidator,
   getUserValidator,
   updateUser,

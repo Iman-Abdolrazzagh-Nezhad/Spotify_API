@@ -1,6 +1,7 @@
 const validator = require("validator");
 const AppError = require("../../Utilities/appError");
 const isProvided = require("../../Utilities/isProvided");
+const restrictTo = require("../../Utilities/restrictTo");
 
 async function validateLogin(req) {
   await isProvided(req, ["email", "password"]);
@@ -13,11 +14,8 @@ async function validateLogin(req) {
 
 async function validateSignup(req, res) {
   // Check for missing fields
-  try {
-    isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
-  } catch (err) {
-    throw err;
-  }
+
+  isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
 
   // Check for min length of the password
   if (4 > req.body.password.length) {
@@ -54,8 +52,15 @@ async function validateUserToken(req) {
   return token;
 }
 
+async function validateAdminAccess(req) {
+  if (!(await restrictTo(req.locals.user.role, "admin"))) {
+    throw new AppError("You are not authorized to access this section.", 403);
+  }
+}
+
 module.exports = {
   validateSignup,
   validateLogin,
   validateUserToken,
+  validateAdminAccess,
 };

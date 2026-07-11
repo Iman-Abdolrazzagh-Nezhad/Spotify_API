@@ -31,7 +31,6 @@ async function getAllUser() {
 
 async function updateUser(id, userUpdate, login = false) {
   if (!login) {
-    console.log(login);
     userUpdate.updatedAt = Date.now();
   }
 

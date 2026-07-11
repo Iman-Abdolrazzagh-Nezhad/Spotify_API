@@ -52,7 +52,7 @@ async function logoutHandler(req, res) {
 
   const cookieOptions = await authController.logout();
 
-  res.cookie("jwt", "GoBackToYourOwnLamPesht", cookieOptions);
+  res.cookie("jwt", "", cookieOptions);
 
   res.status(200).json({
     status: "success",

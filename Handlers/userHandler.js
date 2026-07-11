@@ -7,7 +7,7 @@ async function getAllUserHandler(req, res) {
   const token = await authValidator.validateUserToken(req);
   await authController.identifyUser(req, token);
 
-  await userValidator.getAllUserValidator(req);
+  await authValidator.validateAdminAccess(req);
 
   const data = await userController.getAllUsers(req);
 

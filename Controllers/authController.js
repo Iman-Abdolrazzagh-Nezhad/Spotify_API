@@ -75,7 +75,8 @@ async function identifyUser(req, token) {
 
 async function logout() {
   const cookieOptions = {
-    expires: new Date(Date.now() + 1),
+    expires: new Date(0),
+    maxAge: 0,
     httpOnly: true,
   };
 

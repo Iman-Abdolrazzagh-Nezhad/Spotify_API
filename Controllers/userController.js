@@ -12,11 +12,11 @@ async function getAllUsers() {
 }
 
 async function getUser(req) {
-  const queryObject = {
+  const userObject = {
     id: req.params.id,
   };
   //query for user
-  const data = await usersDomain.getUser(queryObject);
+  const data = await usersDomain.getUser(userObject);
 
   if (!data) {
     throw new AppError("User not found.", 404);
