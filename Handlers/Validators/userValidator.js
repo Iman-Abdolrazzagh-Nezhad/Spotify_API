@@ -5,21 +5,17 @@ const isProvided = require("../../Utilities/isProvided");
 const idValidator = require("../../Utilities/idValidator");
 
 async function addUserValidator(req) {
-  //Send for controller if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
-    // Check for missing fields
     isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
-    // Check for min length of the password
+
     if (4 > req.body.password.length) {
       throw new AppError("Password is less than 4 letters.", 400);
     }
 
-    // Check for password and passwordConfirmation similarity
     if (!(req.body.password === req.body.passwordConfirmation)) {
       throw new AppError("Password Confirmation is wrong", 400);
     }
 
-    // Check for valid email
     if (!validator.isEmail(req.body.email)) {
       throw new AppError("Email is not valid.", 400);
     }
@@ -29,7 +25,6 @@ async function addUserValidator(req) {
 }
 
 async function getUserValidator(req) {
-  //Send for handler if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
     idValidator(req.params.id);
   } else {
@@ -37,8 +32,8 @@ async function getUserValidator(req) {
   }
 }
 
-async function updateUser(req) {
-  //Send for controller if authorized and verified
+async function updateUserValidator(req) {
+  //return to handler if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
     idValidator(req.params.id);
 
@@ -57,8 +52,8 @@ async function updateUser(req) {
   }
 }
 
-async function deleteUser(req) {
-  //Send for controller if authorized and verified
+async function deleteUserValidator(req) {
+  //return to handler if authorized and verified
   if (await restrictTo(req.locals.user.role, "admin")) {
     idValidator(req.params.id);
   } else {
@@ -69,6 +64,6 @@ async function deleteUser(req) {
 module.exports = {
   addUserValidator,
   getUserValidator,
-  updateUser,
-  deleteUser,
+  updateUserValidator,
+  deleteUserValidator,
 };

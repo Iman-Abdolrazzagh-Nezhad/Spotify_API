@@ -19,7 +19,7 @@ const sendResponse = (jwt, statusCode, res) => {
 async function loginHandler(req, res) {
   await authValidator.validateLogin(req);
 
-  const token = await authController.login(req);
+  const token = await authController.loginController(req);
 
   sendResponse(token, 200, res);
 }
@@ -27,7 +27,7 @@ async function loginHandler(req, res) {
 async function signupHandler(req, res) {
   await authValidator.validateSignup(req);
 
-  const token = await authController.signup(req);
+  const token = await authController.signupController(req);
 
   sendResponse(token, 201, res);
 }
@@ -50,7 +50,7 @@ async function logoutHandler(req, res) {
 
   await authController.identifyUser(req, token);
 
-  const cookieOptions = await authController.logout();
+  const cookieOptions = await authController.logoutController();
 
   res.cookie("jwt", "", cookieOptions);
 

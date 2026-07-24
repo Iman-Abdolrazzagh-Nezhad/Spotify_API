@@ -12,8 +12,7 @@ const createJWT = (id) => {
   return token;
 };
 
-async function login(req) {
-  // Find and validate user
+async function loginController(req) {
   const userObject = {
     email: req.body.email,
     password: req.body.password,
@@ -28,25 +27,23 @@ async function login(req) {
     throw new AppError("Email or password is wrong.", 403); //Email is wrong
   }
 
-  // Check if password is correct
   const match = await bcrypt.compare(userObject.password, user.password);
   if (!match) {
     throw new AppError("Email or password is wrong.", 403); //Password is wrong
   }
-  // Make jwt and send
+
   const token = createJWT(user.id);
 
   await UsersDomain.updateUser(
     user.id,
     { lastLoginAt: Date.now() },
     { login: true }
-  ); // login : true tells repo to not achange the updatedAt field for this data
+  ); // login : true tells repo to not change the updatedAt field for this data
 
   return token;
 }
 
-async function signup(req) {
-  //creating new user object
+async function signupController(req) {
   const newUser = {
     name: req.body.name,
     email: req.body.email,
@@ -55,7 +52,6 @@ async function signup(req) {
 
   const user = await UsersDomain.createUser(newUser);
 
-  //make jwt and send
   const token = createJWT(user.id);
 
   return token;
@@ -73,7 +69,7 @@ async function identifyUser(req, token) {
   req.locals.user = user;
 }
 
-async function logout() {
+async function logoutController() {
   const cookieOptions = {
     expires: new Date(0),
     maxAge: 0,
@@ -83,4 +79,9 @@ async function logout() {
   return cookieOptions;
 }
 
-module.exports = { login, signup, logout, identifyUser };
+module.exports = {
+  loginController,
+  signupController,
+  logoutController,
+  identifyUser,
+};

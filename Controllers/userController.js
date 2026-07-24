@@ -1,7 +1,7 @@
 const usersDomain = require("../Domains/UsersDomain");
 const AppError = require("../Utilities/appError");
 
-async function getAllUsers() {
+async function getAllUsersController() {
   const data = await usersDomain.getAllUser();
 
   if (!data) {
@@ -11,11 +11,11 @@ async function getAllUsers() {
   return data;
 }
 
-async function getUser(req) {
+async function getUserController(req) {
   const userObject = {
     id: req.params.id,
   };
-  //query for user
+
   const data = await usersDomain.getUser(userObject);
 
   if (!data) {
@@ -25,15 +25,13 @@ async function getUser(req) {
   return data;
 }
 
-async function addUser(body) {
-  //creating new user object
+async function addUserController(body) {
   const newUser = {
     name: body.name,
     password: body.password,
     email: body.email,
   };
 
-  //creating new user in db
   const data = await usersDomain.createUser(newUser);
 
   if (!data) {
@@ -43,12 +41,10 @@ async function addUser(body) {
   return data;
 }
 
-async function updateUser(req, userId = undefined) {
-  //monitor update
+async function updateUserController(req, userId = undefined) {
   const update = req.body;
   const id = userId || req.params.id;
 
-  //update user
   const data = await usersDomain.updateUser(id, update);
 
   if (!data) {
@@ -58,8 +54,14 @@ async function updateUser(req, userId = undefined) {
   return data;
 }
 
-async function deleteUser(req) {
+async function deleteUserController(req) {
   await usersDomain.deleteUser(req.params.id);
 }
 
-module.exports = { getAllUsers, addUser, getUser, updateUser, deleteUser };
+module.exports = {
+  getAllUsersController,
+  addUserController,
+  getUserController,
+  updateUserController,
+  deleteUserController,
+};

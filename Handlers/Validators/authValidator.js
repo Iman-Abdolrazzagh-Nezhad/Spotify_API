@@ -6,28 +6,22 @@ const restrictTo = require("../../Utilities/restrictTo");
 async function validateLogin(req) {
   await isProvided(req, ["email", "password"]);
 
-  // Check for password min length
   if (4 > req.body.password.length) {
     throw new AppError("Password is less than 4 letters.", 400);
   }
 }
 
-async function validateSignup(req, res) {
-  // Check for missing fields
-
+async function validateSignup(req) {
   isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
 
-  // Check for min length of the password
   if (4 > req.body.password.length) {
     throw new AppError("Password is less than 4 letters.", 400);
   }
 
-  // Check for password and passwordConfirmation similarity
   if (!(req.body.password === req.body.passwordConfirmation)) {
     throw new AppError("Password Confirmation is wrong", 400);
   }
 
-  // Check for valid email
   if (!validator.isEmail(req.body.email)) {
     throw new AppError("Email is not valid.", 400);
   }

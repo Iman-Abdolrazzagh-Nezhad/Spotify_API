@@ -9,9 +9,8 @@ async function getAllUserHandler(req, res) {
 
   await authValidator.validateAdminAccess(req);
 
-  const data = await userController.getAllUsers(req);
+  const data = await userController.getAllUsersController(req);
 
-  //send response
   res.status(200).json({
     status: "success",
     numOfResults: data.length,
@@ -23,9 +22,8 @@ async function getUserHandler(req, res) {
   const token = await authValidator.validateUserToken(req);
   await authController.identifyUser(req, token);
 
-  const data = await userController.getUser(req);
+  const data = await userController.getUserController(req);
 
-  //send response
   res.status(200).json({
     status: "success",
     data,
@@ -38,9 +36,8 @@ async function addUserHandler(req, res) {
 
   await userValidator.addUserValidator(req);
 
-  const data = await userController.addUser(req.body);
+  const data = await userController.addUserController(req.body);
 
-  //send response
   res.status(201).json({
     status: "success",
     data,
@@ -51,11 +48,10 @@ async function updateUserHandler(req, res) {
   const token = await authValidator.validateUserToken(req);
   await authController.identifyUser(req, token);
 
-  await userValidator.updateUser(req);
+  await userValidator.updateUserValidator(req);
 
-  const data = await userController.updateUser(req);
+  const data = await userController.updateUserController(req);
 
-  //send response
   res.status(200).json({
     status: "success",
     data,
@@ -66,9 +62,9 @@ async function deleteUserHandler(req, res) {
   const token = await authValidator.validateUserToken(req);
   await authController.identifyUser(req, token);
 
-  await userValidator.deleteUser(req);
+  await userValidator.deleteUserValidator(req);
 
-  await userController.deleteUser(req);
+  await userController.deleteUserController(req);
 
   res.status(204).json({
     status: "success",
