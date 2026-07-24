@@ -1,17 +1,17 @@
 const express = require("express");
-const userValidator = require("../Validators/userValidator");
+const userHandler = require("../Handlers/userHandler");
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(userValidator.getAllValidator)
-  .post(userValidator.addUser);
+  .get(userHandler.getAllUserHandler)
+  .post(userHandler.addUserHandler);
 
 router
   .route("/:id")
-  .get(userValidator.getUser)
-  .patch(userValidator.updateUser)
-  .delete(userValidator.deleteUser);
+  .get(userHandler.getUserHandler)
+  .patch(userHandler.updateUserHandler)
+  .delete(userHandler.deleteUserHandler);
 
 module.exports = router;

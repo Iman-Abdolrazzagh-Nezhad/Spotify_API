@@ -5,16 +5,17 @@ async function createUser(userObject) {
   userObject.createdAt = Date.now();
 
   userObject.password = await bcrypt.hash(userObject.password, 12);
+
   const user = await User.insertOne(userObject);
 
   return user;
 }
 
-async function getUser(userObject, returnPassword = false) {
+async function getUser(queryObject, returnPassword = false) {
   const query = {};
 
-  if (userObject.email) query.email = userObject.email;
-  if (userObject.id) query._id = userObject.id;
+  if (queryObject.email) query.email = queryObject.email;
+  if (queryObject.id) query._id = queryObject.id;
 
   if (returnPassword) {
     // For login we need the password to be selected
@@ -22,15 +23,16 @@ async function getUser(userObject, returnPassword = false) {
   } else {
     return await User.findOne(query);
   }
-
 }
 
 async function getAllUser() {
   return await User.find();
 }
 
-async function updateUser(id, userUpdate) {
-  userUpdate.updatedAt = Date.now()
+async function updateUser(id, userUpdate, login = false) {
+  if (!login) {
+    userUpdate.updatedAt = Date.now();
+  }
 
   const data = await User.findByIdAndUpdate(id, userUpdate, {
     runValidators: true,

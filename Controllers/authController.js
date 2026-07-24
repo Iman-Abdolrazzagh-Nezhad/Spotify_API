@@ -1,7 +1,5 @@
-const User = require("../Models/UsersModel");
 const AppError = require("../Utilities/appError");
 const { promisify } = require("util");
-const catchAsync = require("../Utilities/catchAsync");
 const jwt = require("jsonwebtoken");
 const UsersDomain = require("../Domains/UsersDomain");
 const bcrypt = require("bcryptjs");
@@ -14,28 +12,11 @@ const createJWT = (id) => {
   return token;
 };
 
-const sendResponse = (jwt, statusCode, res) => {
-  const cookieOptions = {
-    expiresIn: new Date(
-      Date.now() + process.env.JWT_EXP_DATE * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-  };
-  res.cookie("jwt", jwt, cookieOptions);
-
-  res.status(statusCode).json({
-    status: "success",
-    jwt,
-  });
-};
-
-async function login(req, res) {
-  // Find and validate user
+async function loginController(req) {
   const userObject = {
     email: req.body.email,
     password: req.body.password,
   };
-
 
   const user = await UsersDomain.getUser(
     { email: userObject.email },
@@ -45,24 +26,24 @@ async function login(req, res) {
   if (!user) {
     throw new AppError("Email or password is wrong.", 403); //Email is wrong
   }
-  // Check if password is correct
 
   const match = await bcrypt.compare(userObject.password, user.password);
-
   if (!match) {
     throw new AppError("Email or password is wrong.", 403); //Password is wrong
   }
-  // Make jwt and send
+
   const token = createJWT(user.id);
-  sendResponse(token, 200, res);
 
-  //update last login when all process went smoothly
-  await UsersDomain.updateUser(user.id, { lastLoginAt: Date.now() });
+  await UsersDomain.updateUser(
+    user.id,
+    { lastLoginAt: Date.now() },
+    { login: true }
+  ); // login : true tells repo to not change the updatedAt field for this data
 
+  return token;
 }
 
-async function signup(req, res) {
-  //validating new user data
+async function signupController(req) {
   const newUser = {
     name: req.body.name,
     email: req.body.email,
@@ -71,10 +52,9 @@ async function signup(req, res) {
 
   const user = await UsersDomain.createUser(newUser);
 
-  //make jwt and send
   const token = createJWT(user.id);
 
-  sendResponse(token, 201, res);
+  return token;
 }
 
 async function identifyUser(req, token) {
@@ -89,26 +69,19 @@ async function identifyUser(req, token) {
   req.locals.user = user;
 }
 
-function getMe (req, res) {
-  const data = req.locals.user;
-
-  res.status(200).json({
-    status: "success",
-    data,
-  });
-};
-
-function logout (req, res) {
+async function logoutController() {
   const cookieOptions = {
-    expires: new Date(Date.now() + 1),
+    expires: new Date(0),
+    maxAge: 0,
     httpOnly: true,
   };
 
-  res.cookie("jwt", "GoBackToYourOwnLamPesht", cookieOptions);
+  return cookieOptions;
+}
 
-  res.status(200).json({
-    status: "success",
-  });
+module.exports = {
+  loginController,
+  signupController,
+  logoutController,
+  identifyUser,
 };
-
-module.exports = { login, signup, getMe, logout, identifyUser };
