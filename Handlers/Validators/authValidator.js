@@ -39,7 +39,9 @@ async function validateUserToken(req) {
     token = req.cookies.jwt;
   }
 
-  if (!token || token == "null") {
+  const realJWT = await validator.isJWT(token);
+
+  if (!realJWT || !token || token == "null") {
     throw new AppError("You are not logged in.", 401);
   }
 

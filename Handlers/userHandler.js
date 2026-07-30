@@ -22,6 +22,8 @@ async function getUserHandler(req, res) {
   const token = await authValidator.validateUserToken(req);
   await authController.identifyUser(req, token);
 
+  await userValidator.getUserValidator(req);
+
   const data = await userController.getUserController(req);
 
   res.status(200).json({

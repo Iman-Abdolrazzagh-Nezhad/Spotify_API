@@ -37,7 +37,13 @@ async function updateUserValidator(req) {
   if (await restrictTo(req.locals.user.role, "admin")) {
     idValidator(req.params.id);
 
-    const prohibited = ["password", "lastLoginAt", "createdAt", "isActive"];
+    const prohibited = [
+      "password",
+      "lastLoginAt",
+      "createdAt",
+      "isActive",
+      "updatedAt",
+    ];
 
     for (const field of prohibited) {
       if (field in req.body) {
