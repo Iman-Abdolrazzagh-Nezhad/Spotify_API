@@ -1,17 +1,19 @@
-const authValidator = require("./Validators/authValidator");
-const authController = require("../Controllers/authController");
 const musicController = require("../Controllers/musicController");
 const musicValidator = require("./Validators/musicValidator");
 const idValidator = require("../Utilities/idValidator");
+const withAuth = require("../Utilities/withAuth");
 
 //getAll, get, update -> not restricted
 //add, delete -> restricted to admin and artits
 
 async function getAllMusicHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   const data = await musicController.getAllMusicController();
+  if (data.length === 0) {
+    res.status(200).json({
+      status: "success",
+      data: "No music exist.",
+    });
+  }
 
   res.status(200).json({
     status: "success",
@@ -20,9 +22,6 @@ async function getAllMusicHandler(req, res) {
 }
 
 async function addMusicHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   await musicValidator.addMusicValidator(req);
 
   const data = await musicController.addMusicController(req.body);
@@ -34,12 +33,17 @@ async function addMusicHandler(req, res) {
 }
 
 async function getMusicHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   idValidator(req.params.id);
 
   const data = await musicController.getMusicController(req.params.id);
+
+  if (!data) {
+    res.status(404).json({
+      status: "fail",
+      data: "No music exists with provided ID.",
+    });
+    return;
+  }
 
   res.status(200).json({
     status: "success",
@@ -48,9 +52,6 @@ async function getMusicHandler(req, res) {
 }
 
 async function updateMusicHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   await musicValidator.updateMusicValidator(req);
 
   const data = await musicController.updateMusicController(
@@ -65,9 +66,6 @@ async function updateMusicHandler(req, res) {
 }
 
 async function deleteMusicHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   await musicValidator.deleteMusicValidator(req);
 
   await musicController.deleteMusicController(req.params.id);
@@ -79,9 +77,9 @@ async function deleteMusicHandler(req, res) {
 }
 
 module.exports = {
-  getAllMusicHandler,
-  addMusicHandler,
-  getMusicHandler,
-  updateMusicHandler,
-  deleteMusicHandler,
+  getAllMusicHandler: withAuth(getAllMusicHandler),
+  addMusicHandler: withAuth(addMusicHandler),
+  getMusicHandler: withAuth(getMusicHandler),
+  updateMusicHandler: withAuth(updateMusicHandler),
+  deleteMusicHandler: withAuth(deleteMusicHandler),
 };

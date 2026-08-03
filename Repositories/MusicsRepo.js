@@ -1,12 +1,15 @@
 const Music = require("../Models/MusicModel");
+const AppError = require("../Utilities/appError");
 
 async function getAllMusic() {
-  return await Music.find();
+  const data = await Music.find();
+
+  return data;
 }
 
 async function createMusic(userObject) {
   userObject.createdAt = new Date();
-  return await Music.insertOne(userObject);
+  return await Music.create(userObject);
 }
 
 async function getMusic(queryParam) {
@@ -18,14 +21,26 @@ async function getMusic(queryParam) {
 async function updateMusic(musicId, updateObject) {
   updateObject.updatedAt = new Date();
 
-  return await Music.findByIdAndUpdate(musicId, updateObject, {
+  const data = await Music.findByIdAndUpdate(musicId, updateObject, {
     runValidators: true,
     new: true,
   });
+
+  if (!data) {
+    throw new AppError("Internal error! try again.", 500);
+  }
+
+  return data;
 }
 
 async function deleteMusic(id) {
-  return await Music.findByIdAndDelete(id);
+  const data = await Music.findByIdAndDelete(id);
+
+  if (!data) {
+    throw new AppError("Internal error! try again.", 500);
+  }
+
+  return data;
 }
 
 module.exports = {

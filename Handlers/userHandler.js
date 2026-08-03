@@ -1,16 +1,20 @@
 const userValidator = require("../Handlers/Validators/userValidator");
 const userController = require("../Controllers/userController");
-const authController = require("../Controllers/authController");
 const authValidator = require("../Handlers/Validators/authValidator");
+const withAuth = require("../Utilities/withAuth");
 
 async function getAllUserHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
-  await authValidator.validateAdminAccess(req);
+  authValidator.validateAdminAccess(req.locals.user.role);
 
   const data = await userController.getAllUsersController(req);
 
+  if (data.length === 0) {
+    res.status(200).json({
+      status: "success",
+      data: "No user exist.",
+    });
+    return;
+  }
   res.status(200).json({
     status: "success",
     numOfResults: data.length,
@@ -19,9 +23,6 @@ async function getAllUserHandler(req, res) {
 }
 
 async function getUserHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   await userValidator.getUserValidator(req);
 
   const data = await userController.getUserController(req);
@@ -33,9 +34,6 @@ async function getUserHandler(req, res) {
 }
 
 async function addUserHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   await userValidator.addUserValidator(req);
 
   const data = await userController.addUserController(req.body);
@@ -47,9 +45,6 @@ async function addUserHandler(req, res) {
 }
 
 async function updateUserHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   await userValidator.updateUserValidator(req);
 
   const data = await userController.updateUserController(req);
@@ -61,9 +56,6 @@ async function updateUserHandler(req, res) {
 }
 
 async function deleteUserHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-  await authController.identifyUser(req, token);
-
   await userValidator.deleteUserValidator(req);
 
   await userController.deleteUserController(req);
@@ -74,9 +66,9 @@ async function deleteUserHandler(req, res) {
 }
 
 module.exports = {
-  getAllUserHandler,
-  getUserHandler,
-  addUserHandler,
-  updateUserHandler,
-  deleteUserHandler,
+  getAllUserHandler: withAuth(getAllUserHandler),
+  getUserHandler: withAuth(getUserHandler),
+  addUserHandler: withAuth(addUserHandler),
+  updateUserHandler: withAuth(updateUserHandler),
+  deleteUserHandler: withAuth(deleteUserHandler),
 };

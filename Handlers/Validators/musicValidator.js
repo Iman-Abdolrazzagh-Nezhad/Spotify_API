@@ -3,6 +3,40 @@ const validator = require("validator");
 const restrictTo = require("../../Utilities/restrictTo");
 const isProvided = require("../../Utilities/isProvided");
 const idValidator = require("../../Utilities/idValidator");
+const roleParamValidator = require("./param-roleValidator");
+
+function fieldsCheck(body) {
+  const allowedFields = [
+    "name",
+    "artistId",
+    "features",
+    "likeCount",
+    "playCount",
+    "duration",
+    "releaseDate",
+    "audioUrl",
+    "coverImage",
+    "lyrics",
+    "language",
+  ];
+
+  for (const field in body) {
+    if (!allowedFields.includes(field)) {
+      throw new AppError(`Field ${field} is an invalid input.`);
+    }
+  }
+
+  const prohibited = ["updatedAt", "createdAt", "isActive"];
+
+  for (const field of prohibited) {
+    if (field in body) {
+      throw new AppError(
+        `${field} is not changeable through this route or at all.`,
+        400
+      );
+    }
+  }
+}
 
 async function addMusicValidator(req) {
   if (restrictTo(req.locals.user.role, ["admin", "artist"])) {
@@ -16,6 +50,8 @@ async function addMusicValidator(req) {
       "language",
       "releaseDate",
     ]);
+
+    fieldsCheck(req.body);
 
     try {
       await idValidator(req.body.artistId);
@@ -102,13 +138,7 @@ async function addMusicValidator(req) {
 async function updateMusicValidator(req) {
   idValidator(req.params.id);
 
-  const prohibited = ["updatedAt", "createdAt", "isActive"];
-
-  for (const field of prohibited) {
-    if (field in req.body) {
-      throw new AppError(`${field} is not changeable through this route.`, 400);
-    }
-  }
+  fieldsCheck(req.body);
 
   if (req.body.name && typeof req.body.name !== "string") {
     throw new AppError("Music name must be a string", 400);
@@ -221,12 +251,8 @@ async function updateMusicValidator(req) {
   }
 }
 
-async function deleteMusicValidator(req) {
-  if (await restrictTo(req.locals.user.role, ["admin", "artist"])) {
-    idValidator(req.params.id);
-  } else {
-    throw new AppError("You are not authorized to access this section.", 403);
-  }
+function deleteMusicValidator(req) {
+  roleParamValidator(req.params.id, req.locals.user.role, ["admin", "artist"]);
 }
 
 module.exports = {
