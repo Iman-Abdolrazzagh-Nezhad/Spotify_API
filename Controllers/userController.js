@@ -1,5 +1,4 @@
 const usersDomain = require("../Domains/UsersDomain");
-const AppError = require("../Utilities/appError");
 
 async function getAllUsersController() {
   return await usersDomain.getAllUser();
@@ -24,12 +23,6 @@ async function updateUserController(req, userId = undefined) {
 }
 
 async function deleteUserController(req) {
-  const user = await usersDomain.getUser({ id: req.params.id });
-
-  if (!user) {
-    throw new AppError("User does not exist anymore.", 404);
-  }
-
   await usersDomain.deleteUser(req.params.id);
 }
 

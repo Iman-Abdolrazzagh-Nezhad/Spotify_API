@@ -1,6 +1,6 @@
 const authValidator = require("../Handlers/Validators/authValidator");
 const authController = require("../Controllers/authController");
-const withAuth = require("../Utilities/withAuth");
+const withAuth = require("./Validators/Validation_utils/withAuth");
 
 const sendResponse = (jwt, statusCode, res) => {
   const cookieOptions = {
@@ -18,7 +18,7 @@ const sendResponse = (jwt, statusCode, res) => {
 };
 
 async function loginHandler(req, res) {
-  await authValidator.validateLogin(req);
+  authValidator.validateLogin(req);
 
   const token = await authController.loginController(req);
 
@@ -26,14 +26,14 @@ async function loginHandler(req, res) {
 }
 
 async function signupHandler(req, res) {
-  await authValidator.validateSignup(req);
+  authValidator.validateSignup(req);
 
   const token = await authController.signupController(req);
 
   sendResponse(token, 201, res);
 }
 
-async function getMeHandler(req, res) {
+function getMeHandler(req, res) {
   const data = req.locals.user;
 
   res.status(200).json({
@@ -42,8 +42,8 @@ async function getMeHandler(req, res) {
   });
 }
 
-async function logoutHandler(req, res) {
-  const cookieOptions = await authController.logoutController();
+function logoutHandler(req, res) {
+  const cookieOptions = authController.logoutController();
 
   res.clearCookie("jwt", cookieOptions);
 

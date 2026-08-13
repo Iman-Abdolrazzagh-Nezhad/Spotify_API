@@ -1,7 +1,8 @@
 const validator = require("validator");
 const AppError = require("../../Utilities/appError");
-const isProvided = require("../../Utilities/isProvided");
-const restrictTo = require("../../Utilities/restrictTo");
+const isProvided = require("../Validators/Validation_utils/isProvided");
+const restrictTo = require("./Validation_utils/restrictTo");
+const validationUtils = require("./Validation_utils/typeCheck");
 
 function fieldsCheck(allowedFields, body) {
   for (const field in body) {
@@ -11,20 +12,22 @@ function fieldsCheck(allowedFields, body) {
   }
 }
 
-async function validateLogin(req) {
-  await isProvided(req, ["email", "password"]);
-
-  fieldsCheck(["email", "password"], req.body);
-
-  if (4 > req.body.password.length) {
-    throw new AppError("Password is less than 4 letters.", 400);
-  }
-  if (!validator.isEmail(req.body.email)) {
-    throw new AppError("Email is not valid.", 400);
+function checkPasswordLength(pwd) {
+  if (4 > pwd.length) {
+    throw new AppError("User password is less than 4 letters.", 400);
   }
 }
 
-async function validateSignup(req) {
+function validateLogin(req) {
+  isProvided(req, ["email", "password"]);
+
+  fieldsCheck(["email", "password"], req.body);
+
+  checkPasswordLength(req.body.password);
+  validationUtils.isEmail(req.body.email, "User");
+}
+
+function validateSignup(req) {
   isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
 
   const prohibited = [
@@ -46,27 +49,16 @@ async function validateSignup(req) {
     req.body
   );
 
-  if (4 > req.body.password.length) {
-    throw new AppError("Password is less than 4 letters.", 400);
-  }
+  checkPasswordLength(req.body.password);
+  validationUtils.isEmail(req.body.email, "User");
+  validationUtils.isValidURLIfExist(req.body.image, "image", "User");
 
   if (!(req.body.password === req.body.passwordConfirmation)) {
     throw new AppError("Password Confirmation is wrong", 400);
   }
-
-  if (!validator.isEmail(req.body.email)) {
-    throw new AppError("Email is not valid.", 400);
-  }
-
-  if (
-    req.body.coverImage &&
-    !validator.isURL(req.body.coverImage, isURLOptions)
-  ) {
-    throw new AppError("coverImage is not a valid URL", 400);
-  }
 }
 
-async function validateUserToken(req) {
+function validateUserToken(req) {
   var token;
 
   if (
@@ -82,7 +74,7 @@ async function validateUserToken(req) {
     throw new AppError("You are not logged in.", 401);
   }
 
-  const realJWT = await validator.isJWT(token);
+  const realJWT = validator.isJWT(token);
   if (!realJWT) {
     throw new AppError("JWT token is malformed.", 401);
   }

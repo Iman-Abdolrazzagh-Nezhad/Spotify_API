@@ -25,7 +25,7 @@ async function getUser(queryObject, returnPassword = false) {
   }
 
   if (!user) {
-    throw new AppError("Internal error! try again.", 500);
+    throw new AppError("User not found!", 404);
   }
 
   return user;
@@ -46,17 +46,17 @@ async function updateUser(id, userUpdate, login = false) {
   });
 
   if (!user) {
-    throw new AppError("Internal error! try again.", 500);
+    throw new AppError("User not found to update!", 404);
   }
 
   return user;
 }
 
 async function deleteUser(id) {
-  const user = User.findByIdAndDelete(id);
+  const user = await User.findByIdAndDelete(id);
 
   if (!user) {
-    throw new AppError("Internal error! try again.", 500);
+    throw new AppError("User not found to delete!", 404);
   }
 
   return user;

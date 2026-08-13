@@ -15,7 +15,13 @@ async function createMusic(userObject) {
 async function getMusic(queryParam) {
   let query = {};
   query._id = queryParam;
-  return await Music.findOne(query);
+  const data = await Music.findOne(query);
+
+  if (!data) {
+    throw new AppError("Music not found!", 404);
+  }
+
+  return data;
 }
 
 async function updateMusic(musicId, updateObject) {
@@ -27,7 +33,7 @@ async function updateMusic(musicId, updateObject) {
   });
 
   if (!data) {
-    throw new AppError("Internal error! try again.", 500);
+    throw new AppError("Music not found to update!", 404);
   }
 
   return data;
@@ -37,7 +43,7 @@ async function deleteMusic(id) {
   const data = await Music.findByIdAndDelete(id);
 
   if (!data) {
-    throw new AppError("Internal error! try again.", 500);
+    throw new AppError("Music not found to delete!", 404);
   }
 
   return data;

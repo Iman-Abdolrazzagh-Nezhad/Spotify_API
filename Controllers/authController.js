@@ -58,7 +58,7 @@ async function identifyUser(req, token) {
   req.locals.user = user;
 }
 
-async function logoutController() {
+function logoutController() {
   const cookieOptions = {
     expires: new Date(0),
     maxAge: 0,

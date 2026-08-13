@@ -1,5 +1,4 @@
 const musicsDomain = require("../Domains/MusicsDomain");
-const AppError = require("../Utilities/appError");
 
 async function getAllMusicController() {
   return await musicsDomain.getAllMusic();
@@ -10,7 +9,7 @@ async function addMusicController(body) {
 
   body.duration = hours * 3600000 + minutes * 60000 + seconds * 1000;
 
-  return musicsDomain.createMusic(body);
+  return await musicsDomain.createMusic(body);
 }
 
 async function getMusicController(musicId) {
@@ -18,22 +17,10 @@ async function getMusicController(musicId) {
 }
 
 async function updateMusicController(musicId, updateObject) {
-  const data = await musicsDomain.getMusic(musicId);
-
-  if (!data) {
-    throw new AppError("This Music does not exist anymore.", 404);
-  }
-
   return await musicsDomain.updateMusic(musicId, updateObject);
 }
 
 async function deleteMusicController(musicId) {
-  const data = await musicsDomain.getMusic(musicId);
-
-  if (!data) {
-    throw new AppError("This Music does not exist anymore.", 404);
-  }
-
   return await musicsDomain.deleteMusic(musicId);
 }
 

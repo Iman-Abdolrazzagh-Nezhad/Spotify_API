@@ -1,7 +1,8 @@
 const musicController = require("../Controllers/musicController");
 const musicValidator = require("./Validators/musicValidator");
-const idValidator = require("../Utilities/idValidator");
-const withAuth = require("../Utilities/withAuth");
+const isValidId = require("./Validators/Validation_utils/isValidId");
+const withAuth = require("./Validators/Validation_utils/withAuth");
+const roleParamValidator = require("./Validators/Validation_utils/roleParamValidator");
 
 //getAll, get, update -> not restricted
 //add, delete -> restricted to admin and artits
@@ -13,16 +14,18 @@ async function getAllMusicHandler(req, res) {
       status: "success",
       data: "No music exist.",
     });
+    return;
   }
 
   res.status(200).json({
     status: "success",
-    numberOfResults: data,
+    numberOfResults: data.length,
+    data,
   });
 }
 
 async function addMusicHandler(req, res) {
-  await musicValidator.addMusicValidator(req);
+  musicValidator.addMusicValidator(req);
 
   const data = await musicController.addMusicController(req.body);
 
@@ -33,17 +36,9 @@ async function addMusicHandler(req, res) {
 }
 
 async function getMusicHandler(req, res) {
-  idValidator(req.params.id);
+  isValidId(req.params.id);
 
   const data = await musicController.getMusicController(req.params.id);
-
-  if (!data) {
-    res.status(404).json({
-      status: "fail",
-      data: "No music exists with provided ID.",
-    });
-    return;
-  }
 
   res.status(200).json({
     status: "success",
@@ -52,7 +47,7 @@ async function getMusicHandler(req, res) {
 }
 
 async function updateMusicHandler(req, res) {
-  await musicValidator.updateMusicValidator(req);
+  musicValidator.updateMusicValidator(req);
 
   const data = await musicController.updateMusicController(
     req.params.id,
@@ -66,7 +61,7 @@ async function updateMusicHandler(req, res) {
 }
 
 async function deleteMusicHandler(req, res) {
-  await musicValidator.deleteMusicValidator(req);
+  roleParamValidator(req.params.id, req.locals.user.role, ["admin", "artist"]);
 
   await musicController.deleteMusicController(req.params.id);
 
