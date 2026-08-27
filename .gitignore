@@ -5,4 +5,5 @@ roadMap.txt
 .idea
 .vscode
 requestHandler.js
+node_modules/
 Models/MusicModel.js
