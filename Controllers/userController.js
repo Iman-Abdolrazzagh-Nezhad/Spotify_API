@@ -1,14 +1,7 @@
 const usersDomain = require("../Domains/UsersDomain");
-const AppError = require("../Utilities/appError");
 
 async function getAllUsersController() {
-  const data = await usersDomain.getAllUser();
-
-  if (!data) {
-    throw new AppError("Failed to find users.", 404);
-  }
-
-  return data;
+  return await usersDomain.getAllUser();
 }
 
 async function getUserController(req) {
@@ -16,42 +9,17 @@ async function getUserController(req) {
     id: req.params.id,
   };
 
-  const data = await usersDomain.getUser(userObject);
-
-  if (!data) {
-    throw new AppError("User not found.", 404);
-  }
-
-  return data;
+  return await usersDomain.getUser(userObject);
 }
 
 async function addUserController(body) {
-  const newUser = {
-    name: body.name,
-    password: body.password,
-    email: body.email,
-  };
-
-  const data = await usersDomain.createUser(newUser);
-
-  if (!data) {
-    throw new AppError("Failed to create the user.", 500);
-  }
-
-  return data;
+  return await usersDomain.createUser(body);
 }
 
 async function updateUserController(req, userId = undefined) {
-  const update = req.body;
   const id = userId || req.params.id;
 
-  const data = await usersDomain.updateUser(id, update);
-
-  if (!data) {
-    throw new AppError("User with given id not found.", 404);
-  }
-
-  return data;
+  return await usersDomain.updateUser(id, req.body);
 }
 
 async function deleteUserController(req) {

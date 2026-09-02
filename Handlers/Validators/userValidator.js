@@ -1,69 +1,82 @@
 const AppError = require("../../Utilities/appError");
-const validator = require("validator");
-const restrictTo = require("../../Utilities/restrictTo");
-const isProvided = require("../../Utilities/isProvided");
-const idValidator = require("../../Utilities/idValidator");
+const authValidator = require("./authValidator");
+const validationUtils = require("./Validation_utils/typeCheck");
+const isProvided = require("..//Validators/Validation_utils/isProvided");
+const roleParamValidator = require("./Validation_utils/roleParamValidator");
 
-async function addUserValidator(req) {
-  if (await restrictTo(req.locals.user.role, "admin")) {
-    isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
+const ALL_ROLES = ["admin", "artist", "user"];
+const MODEL = "User";
 
-    if (4 > req.body.password.length) {
-      throw new AppError("Password is less than 4 letters.", 400);
+function fieldsCheck(body, isAddUser = false) {
+  // For all usages shall not contain passwordConfirmation except addUser
+  if (!isAddUser && body.passwordConfirmation !== undefined) {
+    throw new AppError("Field passwordConfirmation is an invalid input.");
+  }
+
+  const allowedFields = [
+    "name",
+    "password",
+    "email",
+    "image",
+    "role",
+    "passwordConfirmation",
+  ];
+
+  for (const field in body) {
+    if (!allowedFields.includes(field)) {
+      throw new AppError(`Field ${field} is an invalid input.`);
     }
-
-    if (!(req.body.password === req.body.passwordConfirmation)) {
-      throw new AppError("Password Confirmation is wrong", 400);
-    }
-
-    if (!validator.isEmail(req.body.email)) {
-      throw new AppError("Email is not valid.", 400);
-    }
-  } else {
-    throw new AppError("You are not authorized to access this section.", 403);
   }
 }
 
-async function getUserValidator(req) {
-  if (await restrictTo(req.locals.user.role, "admin")) {
-    idValidator(req.params.id);
-  } else {
-    throw new AppError("You are not authorized to access this section.", 403);
+function isValidRoleIfExist(role) {
+  if (role && !ALL_ROLES.includes(role)) {
+    throw new AppError(`The ${role} is invalid.`, 400);
   }
 }
 
-async function updateUserValidator(req) {
+function addUserValidator(req) {
+  authValidator.validateAdminAccess(req.locals.user.role);
+  isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
+
+  fieldsCheck(req.body, true);
+
+  validationUtils.isEmail(req.body.email, MODEL);
+  isValidRoleIfExist(req.body.role);
+
+  if (4 > req.body.password.length) {
+    throw new AppError("Password is less than 4 letters.", 400);
+  }
+
+  if (!(req.body.password === req.body.passwordConfirmation)) {
+    throw new AppError("Password Confirmation is wrong", 400);
+  }
+}
+
+function updateUserValidator(req) {
   //return to handler if authorized and verified
-  if (await restrictTo(req.locals.user.role, "admin")) {
-    idValidator(req.params.id);
+  roleParamValidator(req.params.id, req.locals.user.role, ["admin"]);
+  fieldsCheck(req.body);
 
-    const prohibited = ["password", "lastLoginAt", "createdAt", "isActive"];
+  validationUtils.isEmailIfExist(req.body.email, MODEL);
+  isValidRoleIfExist(req.body.role);
 
-    for (const field of prohibited) {
-      if (field in req.body) {
-        throw new AppError(
-          `${field} is not changeable through this route.`,
-          400
-        );
-      }
+  const prohibited = [
+    "password",
+    "lastLoginAt",
+    "createdAt",
+    "isActive",
+    "updatedAt",
+  ];
+
+  for (const field of prohibited) {
+    if (field in req.body) {
+      throw new AppError(`${field} is not changeable through this route.`, 400);
     }
-  } else {
-    throw new AppError("You are not authorized to access this section.", 403);
-  }
-}
-
-async function deleteUserValidator(req) {
-  //return to handler if authorized and verified
-  if (await restrictTo(req.locals.user.role, "admin")) {
-    idValidator(req.params.id);
-  } else {
-    throw new AppError("You are not authorized to access this section.", 403);
   }
 }
 
 module.exports = {
   addUserValidator,
-  getUserValidator,
   updateUserValidator,
-  deleteUserValidator,
 };

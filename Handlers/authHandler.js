@@ -1,5 +1,6 @@
 const authValidator = require("../Handlers/Validators/authValidator");
 const authController = require("../Controllers/authController");
+const withAuth = require("./Validators/Validation_utils/withAuth");
 
 const sendResponse = (jwt, statusCode, res) => {
   const cookieOptions = {
@@ -17,7 +18,7 @@ const sendResponse = (jwt, statusCode, res) => {
 };
 
 async function loginHandler(req, res) {
-  await authValidator.validateLogin(req);
+  authValidator.validateLogin(req);
 
   const token = await authController.loginController(req);
 
@@ -25,18 +26,14 @@ async function loginHandler(req, res) {
 }
 
 async function signupHandler(req, res) {
-  await authValidator.validateSignup(req);
+  authValidator.validateSignup(req);
 
   const token = await authController.signupController(req);
 
   sendResponse(token, 201, res);
 }
 
-async function getMeHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
-
-  await authController.identifyUser(req, token);
-
+function getMeHandler(req, res) {
   const data = req.locals.user;
 
   res.status(200).json({
@@ -45,18 +42,19 @@ async function getMeHandler(req, res) {
   });
 }
 
-async function logoutHandler(req, res) {
-  const token = await authValidator.validateUserToken(req);
+function logoutHandler(req, res) {
+  const cookieOptions = authController.logoutController();
 
-  await authController.identifyUser(req, token);
-
-  const cookieOptions = await authController.logoutController();
-
-  res.cookie("jwt", "", cookieOptions);
+  res.clearCookie("jwt", cookieOptions);
 
   res.status(200).json({
     status: "success",
   });
 }
 
-module.exports = { loginHandler, signupHandler, getMeHandler, logoutHandler };
+module.exports = {
+  loginHandler: loginHandler,
+  signupHandler: signupHandler,
+  getMeHandler: withAuth(getMeHandler),
+  logoutHandler: withAuth(logoutHandler),
+};

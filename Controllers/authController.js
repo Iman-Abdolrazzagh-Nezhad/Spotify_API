@@ -13,13 +13,8 @@ const createJWT = (id) => {
 };
 
 async function loginController(req) {
-  const userObject = {
-    email: req.body.email,
-    password: req.body.password,
-  };
-
   const user = await UsersDomain.getUser(
-    { email: userObject.email },
+    { email: req.body.email },
     { returnPassword: true }
   );
 
@@ -27,7 +22,7 @@ async function loginController(req) {
     throw new AppError("Email or password is wrong.", 403); //Email is wrong
   }
 
-  const match = await bcrypt.compare(userObject.password, user.password);
+  const match = await bcrypt.compare(req.body.password, user.password);
   if (!match) {
     throw new AppError("Email or password is wrong.", 403); //Password is wrong
   }
@@ -44,13 +39,7 @@ async function loginController(req) {
 }
 
 async function signupController(req) {
-  const newUser = {
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-  };
-
-  const user = await UsersDomain.createUser(newUser);
+  const user = await UsersDomain.createUser(req.body);
 
   const token = createJWT(user.id);
 
@@ -69,7 +58,7 @@ async function identifyUser(req, token) {
   req.locals.user = user;
 }
 
-async function logoutController() {
+function logoutController() {
   const cookieOptions = {
     expires: new Date(0),
     maxAge: 0,

@@ -1,4 +1,4 @@
-const AppError = require("../Utilities/appError");
+const AppError = require("../../../Utilities/appError");
 
 function isProvided(req, requiredFields) {
   const missingField = requiredFields.find((field) => !req.body[field]);
@@ -8,4 +8,4 @@ function isProvided(req, requiredFields) {
   }
 }
 
-module.exports = isProvided
+module.exports = isProvided;

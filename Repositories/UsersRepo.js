@@ -1,14 +1,13 @@
 const User = require("../Models/UsersModel");
 const bcrypt = require("bcryptjs");
+const AppError = require("../Utilities/appError");
 
 async function createUser(userObject) {
   userObject.createdAt = Date.now();
 
   userObject.password = await bcrypt.hash(userObject.password, 12);
 
-  const user = await User.insertOne(userObject);
-
-  return user;
+  return await User.create(userObject);
 }
 
 async function getUser(queryObject, returnPassword = false) {
@@ -17,12 +16,19 @@ async function getUser(queryObject, returnPassword = false) {
   if (queryObject.email) query.email = queryObject.email;
   if (queryObject.id) query._id = queryObject.id;
 
+  let user;
   if (returnPassword) {
     // For login we need the password to be selected
-    return await User.findOne(query).select("+password");
+    user = await User.findOne(query).select("+password");
   } else {
-    return await User.findOne(query);
+    user = await User.findOne(query);
   }
+
+  if (!user) {
+    throw new AppError("User not found!", 404);
+  }
+
+  return user;
 }
 
 async function getAllUser() {
@@ -34,16 +40,26 @@ async function updateUser(id, userUpdate, login = false) {
     userUpdate.updatedAt = Date.now();
   }
 
-  const data = await User.findByIdAndUpdate(id, userUpdate, {
+  const user = await User.findByIdAndUpdate(id, userUpdate, {
     runValidators: true,
     new: true,
   });
 
-  return data;
+  if (!user) {
+    throw new AppError("User not found to update!", 404);
+  }
+
+  return user;
 }
 
 async function deleteUser(id) {
-  await User.findByIdAndDelete(id);
+  const user = await User.findByIdAndDelete(id);
+
+  if (!user) {
+    throw new AppError("User not found to delete!", 404);
+  }
+
+  return user;
 }
 
 module.exports = { createUser, getUser, updateUser, getAllUser, deleteUser };
