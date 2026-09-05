@@ -37,7 +37,7 @@ function isValidRoleIfExist(role) {
 
 function addUserValidator(req) {
   authValidator.validateAdminAccess(req.locals.user.role);
-  isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
+  isProvided(req.body, ["email", "password", "passwordConfirmation", "name"]);
 
   fieldsCheck(req.body, true);
 

@@ -19,7 +19,7 @@ function checkPasswordLength(pwd) {
 }
 
 function validateLogin(req) {
-  isProvided(req, ["email", "password"]);
+  isProvided(req.body, ["email", "password"]);
 
   fieldsCheck(["email", "password"], req.body);
 
@@ -28,7 +28,7 @@ function validateLogin(req) {
 }
 
 function validateSignup(req) {
-  isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
+  isProvided(req.body, ["email", "password", "passwordConfirmation", "name"]);
 
   const prohibited = [
     "role",
