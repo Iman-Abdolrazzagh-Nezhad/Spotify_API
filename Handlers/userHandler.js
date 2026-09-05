@@ -7,7 +7,7 @@ const roleParamValidator = require("./Validators/Validation_utils/roleParamValid
 async function getAllUserHandler(req, res) {
   authValidator.validateAdminAccess(req.locals.user.role);
 
-  const data = await userController.getAllUsersController(req);
+  const data = await userController.getAllUsersController();
 
   if (data.length === 0) {
     res.status(200).json({

@@ -108,7 +108,7 @@ function validateArtistId(id) {
 
 function addMusicValidator(req) {
   if (restrictTo(req.locals.user.role, ["admin", "artist"])) {
-    isProvided(req, [
+    isProvided(req.body, [
       "name",
       "artistId",
       "duration",
