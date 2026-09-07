@@ -4,12 +4,12 @@ async function getAllMusicController() {
   return await musicsDomain.getAllMusic();
 }
 
-async function addMusicController(body) {
-  const { hours = 0, minutes = 0, seconds = 0 } = body.duration;
+async function addMusicController(musicObject) {
+  const { hours = 0, minutes = 0, seconds = 0 } = musicObject.duration;
 
-  body.duration = hours * 3600000 + minutes * 60000 + seconds * 1000;
+  musicObject.duration = hours * 3600000 + minutes * 60000 + seconds * 1000;
 
-  return await musicsDomain.createMusic(body);
+  return await musicsDomain.createMusic(musicObject);
 }
 
 async function getMusicController(musicId) {

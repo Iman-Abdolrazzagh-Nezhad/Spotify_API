@@ -11,6 +11,30 @@ function addTimestampForEach(songs) {
   return songs;
 }
 
+async function createPlaylist(playlistObject) {
+  playlistObject.songs = addTimestampForEach(playlistObject.songs);
+  playlistObject.createdAt = Date.now();
+
+  return await Playlist.create(playlistObject);
+}
+
+async function getPlaylist(playlistId) {
+  const query = {
+    _id: playlistId,
+  };
+
+  const playlist = await Playlist.findOne(query);
+  if (!playlist) {
+    throw new AppError("Playlist not found!", 404);
+  }
+
+  return playlist;
+}
+
+async function getAllPlaylist() {
+  return await Playlist.find();
+}
+
 async function updatePlaylist(playlistId, playlistUpdate) {
   const { songs, ...fieldsToSet } = playlistUpdate;
 
@@ -32,29 +56,6 @@ async function updatePlaylist(playlistId, playlistUpdate) {
   }
 
   return playlist;
-}
-
-async function createPlaylist(playlistObject) {
-  playlistObject.songs = addTimestampForEach(playlistObject.songs);
-  playlistObject.createdAt = Date.now();
-  return await Playlist.create(playlistObject);
-}
-
-async function getPlaylist(playlistId) {
-  const query = {
-    _id: playlistId,
-  };
-
-  const playlist = await Playlist.findOne(query);
-  if (!playlist) {
-    throw new AppError("Playlist not found!", 404);
-  }
-
-  return playlist;
-}
-
-async function getAllPlaylist() {
-  return await Playlist.find();
 }
 
 async function deletePlaylist(playlistId) {
