@@ -23,23 +23,23 @@ function isSongIdValid(songs) {
   }
 }
 
-function addPlaylistValidator(body) {
-  isProvided(body, ["name"]);
+function addPlaylistValidator(playlistObject) {
+  isProvided(playlistObject, ["name"]);
   const allowedFields = ["name", "songs"];
 
-  fieldsCheck(body, allowedFields);
+  fieldsCheck(playlistObject, allowedFields);
 
-  if (body.songs) {
-    isSongIdValid(body.songs);
+  if (playlistObject.songs) {
+    isSongIdValid(playlistObject.songs);
   }
 }
 
-function updatePlaylistValidator(body) {
+function updatePlaylistValidator(playlistObject) {
   const allowedFields = ["name", "songs"];
 
-  fieldsCheck(body, allowedFields);
-  if (body.songs) {
-    isSongIdValid(body.songs);
+  fieldsCheck(playlistObject, allowedFields);
+  if (playlistObject.songs) {
+    isSongIdValid(playlistObject.songs);
   }
 }
 

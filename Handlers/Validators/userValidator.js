@@ -35,31 +35,31 @@ function isValidRoleIfExist(role) {
   }
 }
 
-function addUserValidator(req) {
-  authValidator.validateAdminAccess(req.locals.user.role);
-  isProvided(req.body, ["email", "password", "passwordConfirmation", "name"]);
+function addUserValidator(userObject, caller) {
+  authValidator.validateAdminAccess(caller.role);
+  isProvided(userObject, ["email", "password", "passwordConfirmation", "name"]);
 
-  fieldsCheck(req.body, true);
+  fieldsCheck(userObject, true);
 
-  validationUtils.isEmail(req.body.email, MODEL);
-  isValidRoleIfExist(req.body.role);
+  validationUtils.isEmail(userObject.email, MODEL);
+  isValidRoleIfExist(userObject.role);
 
-  if (4 > req.body.password.length) {
+  if (4 > userObject.password.length) {
     throw new AppError("Password is less than 4 letters.", 400);
   }
 
-  if (!(req.body.password === req.body.passwordConfirmation)) {
+  if (!(userObject.password === userObject.passwordConfirmation)) {
     throw new AppError("Password Confirmation is wrong", 400);
   }
 }
 
-function updateUserValidator(req) {
+function updateUserValidator(userObject, userId, caller) {
   //return to handler if authorized and verified
-  roleParamValidator(req.params.id, req.locals.user.role, ["admin"]);
-  fieldsCheck(req.body);
+  roleParamValidator(userId, caller.role, ["admin"]);
+  fieldsCheck(userObject);
 
-  validationUtils.isEmailIfExist(req.body.email, MODEL);
-  isValidRoleIfExist(req.body.role);
+  validationUtils.isEmailIfExist(userObject.email, MODEL);
+  isValidRoleIfExist(userObject.role);
 
   const prohibited = [
     "password",
@@ -70,7 +70,7 @@ function updateUserValidator(req) {
   ];
 
   for (const field of prohibited) {
-    if (field in req.body) {
+    if (field in userObject) {
       throw new AppError(`${field} is not changeable through this route.`, 400);
     }
   }

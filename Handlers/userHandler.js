@@ -36,7 +36,7 @@ async function getUserHandler(req, res) {
 }
 
 async function addUserHandler(req, res) {
-  userValidator.addUserValidator(req);
+  userValidator.addUserValidator(req.body, req.locals.user);
 
   const data = await userController.addUserController(req.body);
 
@@ -47,7 +47,7 @@ async function addUserHandler(req, res) {
 }
 
 async function updateUserHandler(req, res) {
-  userValidator.updateUserValidator(req);
+  userValidator.updateUserValidator(req.body, req.params.id, req.locals.user);
 
   const data = await userController.updateUserController(
     req.params.id,

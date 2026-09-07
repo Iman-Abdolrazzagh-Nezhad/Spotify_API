@@ -18,7 +18,7 @@ const sendResponse = (jwt, statusCode, res) => {
 };
 
 async function loginHandler(req, res) {
-  authValidator.validateLogin(req);
+  authValidator.validateLogin(req.body);
 
   const token = await authController.loginController(req.body);
 
@@ -26,7 +26,7 @@ async function loginHandler(req, res) {
 }
 
 async function signupHandler(req, res) {
-  authValidator.validateSignup(req);
+  authValidator.validateSignup(req.body);
 
   const token = await authController.signupController(req.body);
 

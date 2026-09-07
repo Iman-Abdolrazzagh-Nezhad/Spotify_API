@@ -4,6 +4,8 @@ const isProvided = require("../Validators/Validation_utils/isProvided");
 const restrictTo = require("./Validation_utils/restrictTo");
 const validationUtils = require("./Validation_utils/typeCheck");
 
+const MODEL = "User";
+
 function fieldsCheck(allowedFields, body) {
   for (const field in body) {
     if (!allowedFields.includes(field)) {
@@ -18,17 +20,17 @@ function checkPasswordLength(pwd) {
   }
 }
 
-function validateLogin(req) {
-  isProvided(req.body, ["email", "password"]);
+function validateLogin(userObject) {
+  isProvided(userObject, ["email", "password"]);
 
-  fieldsCheck(["email", "password"], req.body);
+  fieldsCheck(["email", "password"], userObject);
 
-  checkPasswordLength(req.body.password);
-  validationUtils.isEmail(req.body.email, "User");
+  checkPasswordLength(userObject.password);
+  validationUtils.isEmail(userObject.email, MODEL);
 }
 
-function validateSignup(req) {
-  isProvided(req.body, ["email", "password", "passwordConfirmation", "name"]);
+function validateSignup(userObject) {
+  isProvided(userObject, ["email", "password", "passwordConfirmation", "name"]);
 
   const prohibited = [
     "role",
@@ -39,21 +41,21 @@ function validateSignup(req) {
   ];
 
   for (const field of prohibited) {
-    if (field in req.body) {
+    if (field in userObject) {
       throw new AppError(`${field} is not changeable through this route.`, 400);
     }
   }
 
   fieldsCheck(
     ["email", "password", "passwordConfirmation", "name", "image"],
-    req.body
+    userObject
   );
 
-  checkPasswordLength(req.body.password);
-  validationUtils.isEmail(req.body.email, "User");
-  validationUtils.isValidURLIfExist(req.body.image, "image", "User");
+  checkPasswordLength(userObject.password);
+  validationUtils.isEmail(userObject.email, MODEL);
+  validationUtils.isValidURLIfExist(userObject.image, "image", MODEL);
 
-  if (!(req.body.password === req.body.passwordConfirmation)) {
+  if (!(userObject.password === userObject.passwordConfirmation)) {
     throw new AppError("Password Confirmation is wrong", 400);
   }
 }
