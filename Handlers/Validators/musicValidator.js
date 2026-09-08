@@ -4,41 +4,22 @@ const isProvided = require("../Validators/Validation_utils/isProvided");
 const isValidId = require("./Validation_utils/isValidId");
 const roleParamValidator = require("./Validation_utils/roleParamValidator");
 const validationUtils = require("./Validation_utils/typeCheck");
+const fieldsCheck = require("./Validation_utils/fieldCheck");
 
 const MODEL = "Music";
-
-function fieldsCheck(body, untouchables = []) {
-  const allowedFields = [
-    "name",
-    "artistId",
-    "features",
-    "likeCount",
-    "playCount",
-    "duration",
-    "releaseDate",
-    "audioUrl",
-    "coverImage",
-    "lyrics",
-    "language",
-  ];
-
-  for (const field in body) {
-    if (!allowedFields.includes(field)) {
-      throw new AppError(`Field ${field} is an invalid input.`);
-    }
-  }
-
-  const prohibited = untouchables + ["updatedAt", "createdAt", "isActive"];
-
-  for (const field of prohibited) {
-    if (field in body) {
-      throw new AppError(
-        `${field} is not changeable through this route or at all.`,
-        400
-      );
-    }
-  }
-}
+const ALLOWEDFIELDS = [
+  "name",
+  "artistId",
+  "features",
+  "likeCount",
+  "playCount",
+  "duration",
+  "releaseDate",
+  "audioUrl",
+  "coverImage",
+  "lyrics",
+  "language",
+];
 
 function reformReleaseDate(date) {
   const { year = NaN, month = NaN, day = NaN } = date;
@@ -119,7 +100,7 @@ function addMusicValidator(musicObject, caller) {
       "releaseDate",
     ]);
 
-    fieldsCheck(musicObject, ["playCount", "likeCount"]);
+    fieldsCheck(musicObject, ALLOWEDFIELDS);
 
     validationUtils.isString(musicObject.name, "name", MODEL);
     validationUtils.isString(musicObject.lyrics, "lyrics", MODEL);
@@ -142,7 +123,7 @@ function addMusicValidator(musicObject, caller) {
 
 function updateMusicValidator(musicObject, musicId, caller) {
   roleParamValidator(musicId, caller.role, ["admin", "artist"]);
-  fieldsCheck(musicObject);
+  fieldsCheck(musicObject, ALLOWEDFIELDS);
 
   validationUtils.isStringIfExist(musicObject.name, MODEL);
   validationUtils.isStringIfExist(musicObject.lyrics, MODEL);

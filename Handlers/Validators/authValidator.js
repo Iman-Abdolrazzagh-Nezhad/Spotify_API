@@ -3,16 +3,9 @@ const AppError = require("../../Utilities/appError");
 const isProvided = require("../Validators/Validation_utils/isProvided");
 const restrictTo = require("./Validation_utils/restrictTo");
 const validationUtils = require("./Validation_utils/typeCheck");
+const fieldsCheck = require("./Validation_utils/fieldCheck");
 
 const MODEL = "User";
-
-function fieldsCheck(allowedFields, body) {
-  for (const field in body) {
-    if (!allowedFields.includes(field)) {
-      throw new AppError(`Field ${field} is an invalid input.`);
-    }
-  }
-}
 
 function checkPasswordLength(pwd) {
   if (4 > pwd.length) {
@@ -23,7 +16,7 @@ function checkPasswordLength(pwd) {
 function validateLogin(userObject) {
   isProvided(userObject, ["email", "password"]);
 
-  fieldsCheck(["email", "password"], userObject);
+  fieldsCheck(userObject, ["email", "password"]);
 
   checkPasswordLength(userObject.password);
   validationUtils.isEmail(userObject.email, MODEL);
@@ -32,24 +25,13 @@ function validateLogin(userObject) {
 function validateSignup(userObject) {
   isProvided(userObject, ["email", "password", "passwordConfirmation", "name"]);
 
-  const prohibited = [
-    "role",
-    "lastLoginAt",
-    "createdAt",
-    "isActive",
-    "updatedAt",
-  ];
-
-  for (const field of prohibited) {
-    if (field in userObject) {
-      throw new AppError(`${field} is not changeable through this route.`, 400);
-    }
-  }
-
-  fieldsCheck(
-    ["email", "password", "passwordConfirmation", "name", "image"],
-    userObject
-  );
+  fieldsCheck(userObject, [
+    "email",
+    "password",
+    "passwordConfirmation",
+    "name",
+    "image",
+  ]);
 
   checkPasswordLength(userObject.password);
   validationUtils.isEmail(userObject.email, MODEL);

@@ -3,31 +3,10 @@ const authValidator = require("./authValidator");
 const validationUtils = require("./Validation_utils/typeCheck");
 const isProvided = require("..//Validators/Validation_utils/isProvided");
 const roleParamValidator = require("./Validation_utils/roleParamValidator");
+const fieldsCheck = require("./Validation_utils/fieldCheck");
 
 const ALL_ROLES = ["admin", "artist", "user"];
 const MODEL = "User";
-
-function fieldsCheck(body, isAddUser = false) {
-  // For all usages shall not contain passwordConfirmation except addUser
-  if (!isAddUser && body.passwordConfirmation !== undefined) {
-    throw new AppError("Field passwordConfirmation is an invalid input.");
-  }
-
-  const allowedFields = [
-    "name",
-    "password",
-    "email",
-    "image",
-    "role",
-    "passwordConfirmation",
-  ];
-
-  for (const field in body) {
-    if (!allowedFields.includes(field)) {
-      throw new AppError(`Field ${field} is an invalid input.`);
-    }
-  }
-}
 
 function isValidRoleIfExist(role) {
   if (role && !ALL_ROLES.includes(role)) {
@@ -39,7 +18,16 @@ function addUserValidator(userObject, caller) {
   authValidator.validateAdminAccess(caller.role);
   isProvided(userObject, ["email", "password", "passwordConfirmation", "name"]);
 
-  fieldsCheck(userObject, true);
+  const allowedFields = [
+    "name",
+    "password",
+    "email",
+    "image",
+    "role",
+    "passwordConfirmation",
+  ];
+
+  fieldsCheck(userObject, allowedFields);
 
   validationUtils.isEmail(userObject.email, MODEL);
   isValidRoleIfExist(userObject.role);
@@ -56,24 +44,13 @@ function addUserValidator(userObject, caller) {
 function updateUserValidator(userObject, userId, caller) {
   //return to handler if authorized and verified
   roleParamValidator(userId, caller.role, ["admin"]);
-  fieldsCheck(userObject);
+
+  const allowedFields = ["name", "email", "image", "role"];
+
+  fieldsCheck(userObject, allowedFields);
 
   validationUtils.isEmailIfExist(userObject.email, MODEL);
   isValidRoleIfExist(userObject.role);
-
-  const prohibited = [
-    "password",
-    "lastLoginAt",
-    "createdAt",
-    "isActive",
-    "updatedAt",
-  ];
-
-  for (const field of prohibited) {
-    if (field in userObject) {
-      throw new AppError(`${field} is not changeable through this route.`, 400);
-    }
-  }
 }
 
 module.exports = {

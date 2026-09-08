@@ -1,14 +1,6 @@
-const AppError = require("../../Utilities/appError");
 const isProvided = require("../Validators/Validation_utils/isProvided");
 const isValidId = require("./Validation_utils/isValidId");
-
-function fieldsCheck(body, allowedFields) {
-  for (const field in body) {
-    if (!allowedFields.includes(field)) {
-      throw new AppError(`Field ${field} is an invalid input.`, 400);
-    }
-  }
-}
+const fieldsCheck = require("./Validation_utils/fieldCheck");
 
 function isSongIdValid(songs) {
   if (songs) {
