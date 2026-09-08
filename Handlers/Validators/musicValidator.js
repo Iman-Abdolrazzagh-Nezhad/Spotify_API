@@ -4,41 +4,22 @@ const isProvided = require("../Validators/Validation_utils/isProvided");
 const isValidId = require("./Validation_utils/isValidId");
 const roleParamValidator = require("./Validation_utils/roleParamValidator");
 const validationUtils = require("./Validation_utils/typeCheck");
+const fieldsCheck = require("./Validation_utils/fieldCheck");
 
 const MODEL = "Music";
-
-function fieldsCheck(body, untouchables = []) {
-  const allowedFields = [
-    "name",
-    "artistId",
-    "features",
-    "likeCount",
-    "playCount",
-    "duration",
-    "releaseDate",
-    "audioUrl",
-    "coverImage",
-    "lyrics",
-    "language",
-  ];
-
-  for (const field in body) {
-    if (!allowedFields.includes(field)) {
-      throw new AppError(`Field ${field} is an invalid input.`);
-    }
-  }
-
-  const prohibited = untouchables + ["updatedAt", "createdAt", "isActive"];
-
-  for (const field of prohibited) {
-    if (field in body) {
-      throw new AppError(
-        `${field} is not changeable through this route or at all.`,
-        400
-      );
-    }
-  }
-}
+const ALLOWEDFIELDS = [
+  "name",
+  "artistId",
+  "features",
+  "likeCount",
+  "playCount",
+  "duration",
+  "releaseDate",
+  "audioUrl",
+  "coverImage",
+  "lyrics",
+  "language",
+];
 
 function reformReleaseDate(date) {
   const { year = NaN, month = NaN, day = NaN } = date;
@@ -106,9 +87,9 @@ function validateArtistId(id) {
   }
 }
 
-function addMusicValidator(req) {
-  if (restrictTo(req.locals.user.role, ["admin", "artist"])) {
-    isProvided(req, [
+function addMusicValidator(musicObject, caller) {
+  if (restrictTo(caller.role, ["admin", "artist"])) {
+    isProvided(musicObject, [
       "name",
       "artistId",
       "duration",
@@ -119,53 +100,57 @@ function addMusicValidator(req) {
       "releaseDate",
     ]);
 
-    fieldsCheck(req.body, ["playCount", "likeCount"]);
+    fieldsCheck(musicObject, ALLOWEDFIELDS);
 
-    validationUtils.isString(req.body.name, "name", MODEL);
-    validationUtils.isString(req.body.lyrics, "lyrics", MODEL);
-    validationUtils.isString(req.body.language, "language", MODEL);
+    validationUtils.isString(musicObject.name, "name", MODEL);
+    validationUtils.isString(musicObject.lyrics, "lyrics", MODEL);
+    validationUtils.isString(musicObject.language, "language", MODEL);
 
-    validationUtils.isValidURL(req.body.audioUrl, "audioUrl", MODEL);
-    validationUtils.isValidURL(req.body.coverImage, "coverImage", MODEL);
+    validationUtils.isValidURL(musicObject.audioUrl, "audioUrl", MODEL);
+    validationUtils.isValidURL(musicObject.coverImage, "coverImage", MODEL);
 
-    if (!validationUtils.isInstanceOfDate(req.body.releaseDate)) {
-      req.body.releaseDate = reformReleaseDate(req.body.releaseDate);
+    if (!validationUtils.isInstanceOfDate(musicObject.releaseDate)) {
+      musicObject.releaseDate = reformReleaseDate(musicObject.releaseDate);
     }
 
-    validateDuration(req.body.duration);
-    validateArtistId(req.body.artistId);
-    validateFeaturesList(req.body.features);
+    validateDuration(musicObject.duration);
+    validateArtistId(musicObject.artistId);
+    validateFeaturesList(musicObject.features);
   } else {
     throw new AppError("You are not authorized to access this section", 403);
   }
 }
 
-function updateMusicValidator(req) {
-  roleParamValidator(req.params.id, req.locals.user.role, ["admin", "artist"]);
-  fieldsCheck(req.body);
+function updateMusicValidator(musicObject, musicId, caller) {
+  roleParamValidator(musicId, caller.role, ["admin", "artist"]);
+  fieldsCheck(musicObject, ALLOWEDFIELDS);
 
-  validationUtils.isStringIfExist(req.body.name, MODEL);
-  validationUtils.isStringIfExist(req.body.lyrics, MODEL);
-  validationUtils.isStringIfExist(req.body.language, MODEL);
-  validationUtils.isNumberAndPositiveIfExist(req.body.likeCount, MODEL);
-  validationUtils.isNumberAndPositiveIfExist(req.body.playCount, MODEL);
-  validationUtils.isValidURLIfExist(req.body.audioUrl, "audioUrl", MODEL);
-  validationUtils.isValidURLIfExist(req.body.coverImage, "coverImage", MODEL);
+  validationUtils.isStringIfExist(musicObject.name, MODEL);
+  validationUtils.isStringIfExist(musicObject.lyrics, MODEL);
+  validationUtils.isStringIfExist(musicObject.language, MODEL);
+  validationUtils.isNumberAndPositiveIfExist(musicObject.likeCount, MODEL);
+  validationUtils.isNumberAndPositiveIfExist(musicObject.playCount, MODEL);
+  validationUtils.isValidURLIfExist(musicObject.audioUrl, "audioUrl", MODEL);
+  validationUtils.isValidURLIfExist(
+    musicObject.coverImage,
+    "coverImage",
+    MODEL
+  );
 
-  if (!validationUtils.isInstanceOfDateIfExist(req.body.releaseDate)) {
-    req.body.releaseDate = reformReleaseDate(req.body.releaseDate);
+  if (!validationUtils.isInstanceOfDateIfExist(musicObject.releaseDate)) {
+    musicObject.releaseDate = reformReleaseDate(musicObject.releaseDate);
   }
 
-  if (req.body.duration) {
-    validateDuration(req.body.duration);
+  if (musicObject.duration) {
+    validateDuration(musicObject.duration);
   }
 
-  if (req.body.artistId) {
-    validateArtistId(req.body.artistId);
+  if (musicObject.artistId) {
+    validateArtistId(musicObject.artistId);
   }
 
-  if (req.body.features) {
-    validateFeaturesList(req.body.features);
+  if (musicObject.features) {
+    validateFeaturesList(musicObject.features);
   }
 }
 

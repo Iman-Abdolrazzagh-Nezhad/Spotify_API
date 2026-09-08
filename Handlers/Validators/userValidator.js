@@ -3,15 +3,20 @@ const authValidator = require("./authValidator");
 const validationUtils = require("./Validation_utils/typeCheck");
 const isProvided = require("..//Validators/Validation_utils/isProvided");
 const roleParamValidator = require("./Validation_utils/roleParamValidator");
+const fieldsCheck = require("./Validation_utils/fieldCheck");
 
 const ALL_ROLES = ["admin", "artist", "user"];
 const MODEL = "User";
 
-function fieldsCheck(body, isAddUser = false) {
-  // For all usages shall not contain passwordConfirmation except addUser
-  if (!isAddUser && body.passwordConfirmation !== undefined) {
-    throw new AppError("Field passwordConfirmation is an invalid input.");
+function isValidRoleIfExist(role) {
+  if (role && !ALL_ROLES.includes(role)) {
+    throw new AppError(`The ${role} is invalid.`, 400);
   }
+}
+
+function addUserValidator(userObject, caller) {
+  authValidator.validateAdminAccess(caller.role);
+  isProvided(userObject, ["email", "password", "passwordConfirmation", "name"]);
 
   const allowedFields = [
     "name",
@@ -22,58 +27,30 @@ function fieldsCheck(body, isAddUser = false) {
     "passwordConfirmation",
   ];
 
-  for (const field in body) {
-    if (!allowedFields.includes(field)) {
-      throw new AppError(`Field ${field} is an invalid input.`);
-    }
-  }
-}
+  fieldsCheck(userObject, allowedFields);
 
-function isValidRoleIfExist(role) {
-  if (role && !ALL_ROLES.includes(role)) {
-    throw new AppError(`The ${role} is invalid.`, 400);
-  }
-}
+  validationUtils.isEmail(userObject.email, MODEL);
+  isValidRoleIfExist(userObject.role);
 
-function addUserValidator(req) {
-  authValidator.validateAdminAccess(req.locals.user.role);
-  isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
-
-  fieldsCheck(req.body, true);
-
-  validationUtils.isEmail(req.body.email, MODEL);
-  isValidRoleIfExist(req.body.role);
-
-  if (4 > req.body.password.length) {
+  if (4 > userObject.password.length) {
     throw new AppError("Password is less than 4 letters.", 400);
   }
 
-  if (!(req.body.password === req.body.passwordConfirmation)) {
+  if (!(userObject.password === userObject.passwordConfirmation)) {
     throw new AppError("Password Confirmation is wrong", 400);
   }
 }
 
-function updateUserValidator(req) {
+function updateUserValidator(userObject, userId, caller) {
   //return to handler if authorized and verified
-  roleParamValidator(req.params.id, req.locals.user.role, ["admin"]);
-  fieldsCheck(req.body);
+  roleParamValidator(userId, caller.role, ["admin"]);
 
-  validationUtils.isEmailIfExist(req.body.email, MODEL);
-  isValidRoleIfExist(req.body.role);
+  const allowedFields = ["name", "email", "image", "role"];
 
-  const prohibited = [
-    "password",
-    "lastLoginAt",
-    "createdAt",
-    "isActive",
-    "updatedAt",
-  ];
+  fieldsCheck(userObject, allowedFields);
 
-  for (const field of prohibited) {
-    if (field in req.body) {
-      throw new AppError(`${field} is not changeable through this route.`, 400);
-    }
-  }
+  validationUtils.isEmailIfExist(userObject.email, MODEL);
+  isValidRoleIfExist(userObject.role);
 }
 
 module.exports = {

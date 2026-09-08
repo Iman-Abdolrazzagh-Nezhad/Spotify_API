@@ -4,11 +4,9 @@ const isValidId = require("./Validators/Validation_utils/isValidId");
 const withAuth = require("./Validators/Validation_utils/withAuth");
 const roleParamValidator = require("./Validators/Validation_utils/roleParamValidator");
 
-//getAll, get, update -> not restricted
-//add, delete -> restricted to admin and artits
-
 async function getAllMusicHandler(req, res) {
   const data = await musicController.getAllMusicController();
+
   if (data.length === 0) {
     res.status(200).json({
       status: "success",
@@ -25,7 +23,7 @@ async function getAllMusicHandler(req, res) {
 }
 
 async function addMusicHandler(req, res) {
-  musicValidator.addMusicValidator(req);
+  musicValidator.addMusicValidator(req.body, req.locals.user);
 
   const data = await musicController.addMusicController(req.body);
 
@@ -47,7 +45,7 @@ async function getMusicHandler(req, res) {
 }
 
 async function updateMusicHandler(req, res) {
-  musicValidator.updateMusicValidator(req);
+  musicValidator.updateMusicValidator(req.body, req.params.id, req.locals.user);
 
   const data = await musicController.updateMusicController(
     req.params.id,

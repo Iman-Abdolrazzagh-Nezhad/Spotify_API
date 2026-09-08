@@ -7,7 +7,7 @@ const roleParamValidator = require("./Validators/Validation_utils/roleParamValid
 async function getAllUserHandler(req, res) {
   authValidator.validateAdminAccess(req.locals.user.role);
 
-  const data = await userController.getAllUsersController(req);
+  const data = await userController.getAllUsersController();
 
   if (data.length === 0) {
     res.status(200).json({
@@ -27,7 +27,7 @@ async function getAllUserHandler(req, res) {
 async function getUserHandler(req, res) {
   roleParamValidator(req.params.id, req.locals.user.role, ["admin"]);
 
-  const data = await userController.getUserController(req);
+  const data = await userController.getUserController(req.params.id);
 
   res.status(200).json({
     status: "success",
@@ -36,7 +36,7 @@ async function getUserHandler(req, res) {
 }
 
 async function addUserHandler(req, res) {
-  userValidator.addUserValidator(req);
+  userValidator.addUserValidator(req.body, req.locals.user);
 
   const data = await userController.addUserController(req.body);
 
@@ -47,9 +47,12 @@ async function addUserHandler(req, res) {
 }
 
 async function updateUserHandler(req, res) {
-  userValidator.updateUserValidator(req);
+  userValidator.updateUserValidator(req.body, req.params.id, req.locals.user);
 
-  const data = await userController.updateUserController(req);
+  const data = await userController.updateUserController(
+    req.params.id,
+    req.body
+  );
 
   res.status(200).json({
     status: "success",
@@ -60,7 +63,7 @@ async function updateUserHandler(req, res) {
 async function deleteUserHandler(req, res) {
   roleParamValidator(req.params.id, req.locals.user.role, ["admin"]);
 
-  await userController.deleteUserController(req);
+  await userController.deleteUserController(req.params.id);
 
   res.status(204).json({
     status: "success",

@@ -3,14 +3,9 @@ const AppError = require("../../Utilities/appError");
 const isProvided = require("../Validators/Validation_utils/isProvided");
 const restrictTo = require("./Validation_utils/restrictTo");
 const validationUtils = require("./Validation_utils/typeCheck");
+const fieldsCheck = require("./Validation_utils/fieldCheck");
 
-function fieldsCheck(allowedFields, body) {
-  for (const field in body) {
-    if (!allowedFields.includes(field)) {
-      throw new AppError(`Field ${field} is an invalid input.`);
-    }
-  }
-}
+const MODEL = "User";
 
 function checkPasswordLength(pwd) {
   if (4 > pwd.length) {
@@ -18,42 +13,31 @@ function checkPasswordLength(pwd) {
   }
 }
 
-function validateLogin(req) {
-  isProvided(req, ["email", "password"]);
+function validateLogin(userObject) {
+  isProvided(userObject, ["email", "password"]);
 
-  fieldsCheck(["email", "password"], req.body);
+  fieldsCheck(userObject, ["email", "password"]);
 
-  checkPasswordLength(req.body.password);
-  validationUtils.isEmail(req.body.email, "User");
+  checkPasswordLength(userObject.password);
+  validationUtils.isEmail(userObject.email, MODEL);
 }
 
-function validateSignup(req) {
-  isProvided(req, ["email", "password", "passwordConfirmation", "name"]);
+function validateSignup(userObject) {
+  isProvided(userObject, ["email", "password", "passwordConfirmation", "name"]);
 
-  const prohibited = [
-    "role",
-    "lastLoginAt",
-    "createdAt",
-    "isActive",
-    "updatedAt",
-  ];
+  fieldsCheck(userObject, [
+    "email",
+    "password",
+    "passwordConfirmation",
+    "name",
+    "image",
+  ]);
 
-  for (const field of prohibited) {
-    if (field in req.body) {
-      throw new AppError(`${field} is not changeable through this route.`, 400);
-    }
-  }
+  checkPasswordLength(userObject.password);
+  validationUtils.isEmail(userObject.email, MODEL);
+  validationUtils.isValidURLIfExist(userObject.image, "image", MODEL);
 
-  fieldsCheck(
-    ["email", "password", "passwordConfirmation", "name", "image"],
-    req.body
-  );
-
-  checkPasswordLength(req.body.password);
-  validationUtils.isEmail(req.body.email, "User");
-  validationUtils.isValidURLIfExist(req.body.image, "image", "User");
-
-  if (!(req.body.password === req.body.passwordConfirmation)) {
+  if (!(userObject.password === userObject.passwordConfirmation)) {
     throw new AppError("Password Confirmation is wrong", 400);
   }
 }
