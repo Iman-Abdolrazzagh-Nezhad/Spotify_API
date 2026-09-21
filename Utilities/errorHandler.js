@@ -41,4 +41,3 @@ module.exports = (err, req, res, next) => {
     //details are cut from error
   }
 };
-//OPTIMIZATION NEEDED************************************
