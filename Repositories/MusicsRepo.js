@@ -49,10 +49,16 @@ async function deleteMusic(id) {
   return data;
 }
 
+async function findExistingIds(musicIds) {
+  const found = await Music.find({ _id: { $in: musicIds } }).select("_id");
+  return found.map((doc) => String(doc._id));
+}
+
 module.exports = {
   getAllMusic,
   createMusic,
   getMusic,
   updateMusic,
   deleteMusic,
+  findExistingIds,
 };

@@ -11,14 +11,15 @@ function isAllowedAccess(playlist, caller) {
 }
 
 async function areSongsPresent(songs) {
-  if (songs) {
-    for (const songId of songs) {
-      try {
-        await musicRepo.getMusic(songId);
-      } catch (err) {
-        throw new AppError(`Song ${songId} does not exist.`, 400);
-      }
-    }
+  if (!songs || songs.length === 0) return;
+
+  const existingIds = await musicRepo.findExistingIds(songs);
+  const existingSet = new Set(existingIds);
+
+  const missing = songs.filter((id) => !existingSet.has(String(id)));
+
+  if (missing.length > 0) {
+    throw new AppError(`Song(s) ${missing.join(", ")} do not exist.`, 404);
   }
 }
 
