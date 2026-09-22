@@ -4,7 +4,7 @@ const withAuth = require("./Validators/Validation_utils/withAuth");
 
 const sendResponse = (jwt, statusCode, res) => {
   const cookieOptions = {
-    expiresIn: new Date(
+    expires: new Date(
       Date.now() + process.env.JWT_EXP_DATE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,

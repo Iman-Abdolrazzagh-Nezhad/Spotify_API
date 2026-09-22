@@ -1,7 +1,7 @@
 const AppError = require("../../Utilities/appError");
 const authValidator = require("./authValidator");
 const validationUtils = require("./Validation_utils/typeCheck");
-const isProvided = require("..//Validators/Validation_utils/isProvided");
+const isProvided = require("../Validators/Validation_utils/isProvided");
 const roleParamValidator = require("./Validation_utils/roleParamValidator");
 const fieldsCheck = require("./Validation_utils/fieldCheck");
 

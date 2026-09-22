@@ -1,14 +1,18 @@
 const musicsDomain = require("../Domains/MusicsDomain");
 
+function toMilliseconds(duration) {
+  const { hours = 0, minutes = 0, seconds = 0 } = duration;
+
+  duration = hours * 3600000 + minutes * 60000 + seconds * 1000;
+  return duration;
+}
+
 async function getAllMusicController() {
   return await musicsDomain.getAllMusic();
 }
 
 async function addMusicController(musicObject) {
-  const { hours = 0, minutes = 0, seconds = 0 } = musicObject.duration;
-
-  musicObject.duration = hours * 3600000 + minutes * 60000 + seconds * 1000;
-
+  musicObject.duration = toMilliseconds(musicObject.duration);
   return await musicsDomain.createMusic(musicObject);
 }
 
@@ -17,6 +21,9 @@ async function getMusicController(musicId) {
 }
 
 async function updateMusicController(musicId, updateObject) {
+  if (musicObject.duration) {
+    musicObject.duration = toMilliseconds(musicObject.duration);
+  }
   return await musicsDomain.updateMusic(musicId, updateObject);
 }
 

@@ -7,9 +7,9 @@ async function getAllMusic() {
   return data;
 }
 
-async function createMusic(userObject) {
-  userObject.createdAt = new Date();
-  return await Music.create(userObject);
+async function createMusic(musicObject) {
+  musicObject.createdAt = new Date();
+  return await Music.create(musicObject);
 }
 
 async function getMusic(queryParam) {

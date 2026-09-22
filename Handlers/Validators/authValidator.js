@@ -67,7 +67,7 @@ function validateUserToken(req) {
 }
 
 function validateAdminAccess(role) {
-  if (!restrictTo(role, "admin")) {
+  if (!restrictTo(role, ["admin"])) {
     throw new AppError("You are not authorized to access this section.", 403);
   }
 }

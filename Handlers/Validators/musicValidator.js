@@ -60,6 +60,9 @@ function validateDuration(duration) {
 }
 
 function validateFeaturesList(list) {
+  if (list !== undefined) {
+    throw new AppError("Features must be an array of valid ids", 400);
+  }
   try {
     if (Array.isArray(list)) {
       for (const id of list) {
@@ -69,8 +72,6 @@ function validateFeaturesList(list) {
 
         isValidId(id);
       }
-    } else if (list !== undefined) {
-      throw new AppError("Features must be an array of valid ids", 400);
     }
   } catch (err) {
     err.message = "There a typo in id provided for artists";

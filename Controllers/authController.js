@@ -6,19 +6,20 @@ const bcrypt = require("bcryptjs");
 
 const createJWT = (id) => {
   const token = jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXP_DATE,
+    expiresIn: `${process.env.JWT_EXP_DATE}d`,
   });
 
   return token;
 };
 
 async function loginController(userObject) {
-  const user = await UsersDomain.getUser(
-    { email: userObject.email },
-    { returnPassword: true }
-  );
-
-  if (!user) {
+  let user;
+  try {
+    user = await UsersDomain.getUser(
+      { email: userObject.email },
+      { returnPassword: true }
+    );
+  } catch (err) {
     throw new AppError("Email or password is wrong.", 403); //Email is wrong
   }
 
@@ -48,7 +49,14 @@ async function signupController(userObject) {
 }
 
 async function identifyUser(req, token) {
-  const tokenUser = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  let tokenUser;
+
+  try {
+    tokenUser = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  } catch (err) {
+    throw new AppError("Invalid or expired token.", 401);
+  }
+
   const user = await UsersDomain.getUser({ id: tokenUser.id });
 
   if (!user) {
