@@ -6,23 +6,25 @@ const bcrypt = require("bcryptjs");
 
 const createJWT = (id) => {
   const token = jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXP_DATE,
+    expiresIn: `${process.env.JWT_EXP_DATE}d`,
   });
 
   return token;
 };
 
-async function loginController(req) {
-  const user = await UsersDomain.getUser(
-    { email: req.body.email },
-    { returnPassword: true }
-  );
-
-  if (!user) {
+async function loginController(userObject) {
+  let user;
+  try {
+    user = await UsersDomain.getUser(
+      { email: userObject.email },
+      { returnPassword: true }
+    );
+  } catch (err) {
     throw new AppError("Email or password is wrong.", 403); //Email is wrong
   }
 
-  const match = await bcrypt.compare(req.body.password, user.password);
+  const match = await bcrypt.compare(userObject.password, user.password);
+
   if (!match) {
     throw new AppError("Email or password is wrong.", 403); //Password is wrong
   }
@@ -38,16 +40,23 @@ async function loginController(req) {
   return token;
 }
 
-async function signupController(req) {
-  const user = await UsersDomain.createUser(req.body);
+async function signupController(userObject) {
+  const newUser = await UsersDomain.createUser(userObject);
 
-  const token = createJWT(user.id);
+  const token = createJWT(newUser.id);
 
   return token;
 }
 
 async function identifyUser(req, token) {
-  const tokenUser = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  let tokenUser;
+
+  try {
+    tokenUser = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  } catch (err) {
+    throw new AppError("Invalid or expired token.", 401);
+  }
+
   const user = await UsersDomain.getUser({ id: tokenUser.id });
 
   if (!user) {

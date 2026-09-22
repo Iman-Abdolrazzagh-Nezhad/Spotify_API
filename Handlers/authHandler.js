@@ -4,7 +4,7 @@ const withAuth = require("./Validators/Validation_utils/withAuth");
 
 const sendResponse = (jwt, statusCode, res) => {
   const cookieOptions = {
-    expiresIn: new Date(
+    expires: new Date(
       Date.now() + process.env.JWT_EXP_DATE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
@@ -18,17 +18,17 @@ const sendResponse = (jwt, statusCode, res) => {
 };
 
 async function loginHandler(req, res) {
-  authValidator.validateLogin(req);
+  authValidator.validateLogin(req.body);
 
-  const token = await authController.loginController(req);
+  const token = await authController.loginController(req.body);
 
   sendResponse(token, 200, res);
 }
 
 async function signupHandler(req, res) {
-  authValidator.validateSignup(req);
+  authValidator.validateSignup(req.body);
 
-  const token = await authController.signupController(req);
+  const token = await authController.signupController(req.body);
 
   sendResponse(token, 201, res);
 }

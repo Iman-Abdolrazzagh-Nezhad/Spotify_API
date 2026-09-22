@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const usersRouter = require("./Routers/userRouter");
 const musicsRouter = require("./Routers/musicRouter");
 const authRouter = require("./Routers/authRouter");
+const playlistsRouter = require("./Routers/playlistRouter");
 const globalErrorHandler = require("./Utilities/errorHandler");
 
 const app = express();
@@ -19,6 +20,7 @@ if (process.env.NODE_ENV === "development") {
 app.use("/api/v1", authRouter);
 app.use("/api/v1/user", usersRouter);
 app.use("/api/v1/music", musicsRouter);
+app.use("/api/v1/playlist", playlistsRouter);
 
 app.use(globalErrorHandler);
 

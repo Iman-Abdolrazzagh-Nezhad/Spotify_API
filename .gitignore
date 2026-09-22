@@ -2,7 +2,7 @@ node_modules/
 *.env
 *.dia
 *.drawio
-roadMap.txt
+needToTalk.txt
 .idea
 .vscode
 requestHandler.js

@@ -7,9 +7,9 @@ async function getAllMusic() {
   return data;
 }
 
-async function createMusic(userObject) {
-  userObject.createdAt = new Date();
-  return await Music.create(userObject);
+async function createMusic(musicObject) {
+  musicObject.createdAt = new Date();
+  return await Music.create(musicObject);
 }
 
 async function getMusic(queryParam) {
@@ -49,10 +49,16 @@ async function deleteMusic(id) {
   return data;
 }
 
+async function findExistingIds(musicIds) {
+  const found = await Music.find({ _id: { $in: musicIds } }).select("_id");
+  return found.map((doc) => String(doc._id));
+}
+
 module.exports = {
   getAllMusic,
   createMusic,
   getMusic,
   updateMusic,
   deleteMusic,
+  findExistingIds,
 };

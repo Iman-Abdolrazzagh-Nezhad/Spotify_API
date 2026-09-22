@@ -40,42 +40,26 @@ const IS_URL_OPTIONS = {
 };
 
 function isValidURL(value, fieldName, model) {
-  try {
-    validator.isURL(value, IS_URL_OPTIONS);
-  } catch {
+  if (!validator.isURL(value, IS_URL_OPTIONS))
     throw new AppError(`${model} ${fieldName} must be a valid URL.`, 400);
-  }
 }
 
 function isValidURLIfExist(value, fieldName, model) {
   if (value) {
-    try {
-      validator.isURL(value, IS_URL_OPTIONS);
-    } catch {
+    if (!validator.isURL(value, IS_URL_OPTIONS))
       throw new AppError(`${model} ${fieldName} must be a valid URL.`, 400);
-    }
-  } else if (value) {
-    return true;
   }
 }
 
 function isEmail(value, model) {
-  try {
-    validator.isEmail(value);
-  } catch {
+  if (!validator.isEmail(value))
     throw new AppError(`${model} Email is not valid.`, 400);
-  }
 }
 
 function isEmailIfExist(value, model) {
   if (value) {
-    try {
-      validator.isEmail(value);
-    } catch {
+    if (!validator.isEmail(value))
       throw new AppError(`${model} Email is not valid.`, 400);
-    }
-  } else if (value) {
-    return true;
   }
 }
 

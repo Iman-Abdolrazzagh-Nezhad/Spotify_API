@@ -4,9 +4,9 @@ async function getAllUsersController() {
   return await usersDomain.getAllUser();
 }
 
-async function getUserController(req) {
+async function getUserController(userId) {
   const userObject = {
-    id: req.params.id,
+    id: userId,
   };
 
   return await usersDomain.getUser(userObject);
@@ -16,14 +16,12 @@ async function addUserController(body) {
   return await usersDomain.createUser(body);
 }
 
-async function updateUserController(req, userId = undefined) {
-  const id = userId || req.params.id;
-
-  return await usersDomain.updateUser(id, req.body);
+async function updateUserController(userId, userObject) {
+  return await usersDomain.updateUser(userId, userObject);
 }
 
-async function deleteUserController(req) {
-  await usersDomain.deleteUser(req.params.id);
+async function deleteUserController(userId) {
+  await usersDomain.deleteUser(userId);
 }
 
 module.exports = {
